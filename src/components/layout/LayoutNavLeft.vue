@@ -17,7 +17,7 @@
   
   </style>
   <script>
-    import DashboardContent from './Content.vue'
+    import DashboardContent from './content.vue'
     export default {
       components: {
           DashboardContent,
