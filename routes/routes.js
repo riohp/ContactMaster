@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ListView from '@/views/ListView.vue';
 import CreateView from '@/views/CreateView.vue';
+import EditView from '@/views/EditView.vue';
 
 const routes = [
     { 

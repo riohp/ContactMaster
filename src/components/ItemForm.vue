@@ -23,15 +23,23 @@ export default {
     };
   },
   methods: {
-    createItem(item) {
-      // obtencion de api
-      console.log(item);
+    handleSubmit() {
+      if (this.item.userId) {
+        this.updateItem(this.item);
+      } else {
+        this.createItem(this.item);
+      }
     },
 
-    updateItem(item){
-      console.log(item);
+    createItem(item) {
+      console.log("Creando item:", item);
+    },
+
+    updateItem(item) {
+      console.log("Actualizando item:", item);
     }
   }
 };
 </script>
+
 

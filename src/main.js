@@ -1,28 +1,27 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createApp} from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
-import router from "../routes/routes";
-
-// plugin setup
-Vue.use(VueRouter);
-
+import routes from "../routes/routes";
 
 // configure router
-const router = new VueRouter({
-  router, // short for routes: routes
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
   linkActiveClass: "nav-item active",
   scrollBehavior: (to) => {
     if (to.hash) {
-      return { selector: to.hash };
+      return { el: to.hash };
     } else {
-      return { x: 0, y: 0 };
+      return { top: 0 };
     }
   },
 });
 
-/* eslint-disable no-new */
-new Vue({
-  el: "#app",
-  render: (h) => h(App),
-  router,
-}); 
+// create app
+const app = createApp(App);
+
+// use router
+app.use(router);
+
+// mount app
+app.mount("#app");
