@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
       <side-bar>
-        <sidebar-link to="/admin/table-list">
+        <sidebar-link to="/">
           <i class="nc-icon nc-notes"></i>
           <p>Lista de agentes</p>
         </sidebar-link>
