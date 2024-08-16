@@ -1,27 +1,13 @@
-import { createApp} from "vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { createApp } from "vue";
 import App from "./App.vue";
-import routes from "../routes/router";
+import store from "./store";
+import router from "./router";
+import "./assets/css/nucleo-icons.css";
+import "./assets/css/nucleo-svg.css";
+import ArgonDashboard from "./argon-dashboard";
 
-// configure router
-const router = createRouter({
-  history: createWebHistory(),
-  routes,
-  linkActiveClass: "nav-item active",
-  scrollBehavior: (to) => {
-    if (to.hash) {
-      return { el: to.hash };
-    } else {
-      return { top: 0 };
-    }
-  },
-});
-
-// create app
-const app = createApp(App);
-
-// use router
-app.use(router);
-
-// mount app
-app.mount("#app");
+const appInstance = createApp(App);
+appInstance.use(store);
+appInstance.use(router);
+appInstance.use(ArgonDashboard);
+appInstance.mount("#app");
