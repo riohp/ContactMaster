@@ -1,5 +1,5 @@
 <script setup>
-import AuthorsTable from "./components/AuthorsTable.vue";
+import AuthorsTable from "./components/ReferralsTable.vue";
 
 </script>
 <template>
