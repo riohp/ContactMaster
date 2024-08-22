@@ -88,7 +88,7 @@ The documentation for the Vue Argon Dashboard 2 is hosted at our [website](https
 Within the download you'll find the following directories and files:
 
 ```
-vue-argon-dashboard
+vue-agenda-ab
     ├── public
     │   ├── favicon.png
     │   └── index.html
@@ -124,6 +124,8 @@ vue-argon-dashboard
     │   │   ├── Configurator.vue
     │   │   └── Footer.vue
     │   ├── router
+    |   ├── services
+    |   ├── apiServices.js
     │   ├── store
     │   ├── views
     │   │   ├── components

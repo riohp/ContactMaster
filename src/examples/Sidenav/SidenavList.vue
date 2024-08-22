@@ -47,41 +47,6 @@ const obtenerRuta = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item">
-        <sidenav-item
-          to="/billing"
-          :class="obtenerRuta() === 'billing' ? 'active' : ''"
-          navText="Facturación"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-credit-card text-success text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/virtual-reality"
-          :class="obtenerRuta() === 'virtual-reality' ? 'active' : ''"
-          navText="Realidad Virtual"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-app text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/rtl-page"
-          :class="obtenerRuta() === 'rtl-page' ? 'active' : ''"
-          navText="RTL"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-world-2 text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
 
       <li class="mt-3 nav-item">
         <h6

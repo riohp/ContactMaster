@@ -2,8 +2,8 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import SidenavList from "./SidenavList.vue";
-import logo from "@/assets/img/logo-ct-dark.png";
-import logoWhite from "@/assets/img/logo-ct.png";
+import logo from "@/assets/img/logo_abai.png";
+import logoWhite from "@/assets/img/logo_abai.png";
 
 const store = useStore();
 const isRTL = computed(() => store.state.isRTL);
