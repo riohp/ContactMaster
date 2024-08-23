@@ -27,7 +27,7 @@ const obtenerRuta = () => {
         <sidenav-item
           to="/dashboard-default"
           :class="obtenerRuta() === 'dashboard-default' ? 'active' : ''"
-          navText="Panel de Control"
+          navText="Control de Agendamiento"
         >
           <template v-slot:icon>
             <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
@@ -39,7 +39,19 @@ const obtenerRuta = () => {
         <sidenav-item
           to="/tables"
           :class="obtenerRuta() === 'tables' ? 'active' : ''"
-          navText="Tablas"
+          navText="Tabla General"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          to="/agendizedtable"
+          :class="obtenerRuta() === 'agendizedtable' ? 'active' : ''"
+          navText="Tabla Agendados"
         >
           <template v-slot:icon>
             <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
@@ -61,22 +73,10 @@ const obtenerRuta = () => {
         <sidenav-item
           to="/signin"
           :class="obtenerRuta() === 'signin' ? 'active' : ''"
-          navText="Iniciar Sesión"
+          navText="Cerrar Sesión"
         >
           <template v-slot:icon>
             <i class="ni ni-single-copy-04 text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
-
-      <li class="nav-item">
-        <sidenav-item
-          to="/signup"
-          :class="obtenerRuta() === 'signup' ? 'active' : ''"
-          navText="Registrarse"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-collection text-info text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
