@@ -17,36 +17,38 @@
       </div>
       <!-- Tabla de referidos -->
       <div v-else class="table-responsive p-0">
-        <table class="table align-items-center mb-0">
+        <table class="table align-items-center text-center mb-0">
           <thead>
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">ID</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nombre</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Teléfono</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha de Llamada</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notas</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Teléfono</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notas</th>
+              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="referral in referrals" :key="referral.referralId">
-              <td>
-                <p class="text-xs font-weight-bold mb-0 px-2">{{ truncateId(referral.referralId) }}</p>
+            <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
+              <td class="text-xs">
+                <span class="text-secondary">{{ referral.name }}</span>
               </td>
-              <td>
-                <p class="text-xs font-weight-bold mb-0">{{ referral.name }}</p>
+              <td class="text-xs">
+                <span class="text-secondary">{{ referral.phoneNumber }}</span>
               </td>
-              <td>
-                <p class="text-xs font-weight-bold mb-0">{{ referral.phoneNumber }}</p>
+              <td class="text-xs">
+                <span class="text-secondary">{{ formatDate(referral.callDate) }}</span>
               </td>
-              <td class="align-middle text-center text-sm">
-                <span class="text-secondary text-xs font-weight-bold">{{ formatDate(referral.callDate) }}</span>
-              </td>
-              <td class="align-middle text-center">
+              <td class="text-xs">
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
-              <td class="align-middle text-center">
-                <p class="text-xs text-secondary mb-0">{{ truncateNotes(referral.notes) }}</p>
+              <td class="text-xs">
+                <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
+              </td>  
+              <td class="text-xs">
+                <button class="btn px-4  btn-primary" @click="editReferral(referral.referralId)">
+                  <i class="fas fa-edit"></i>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -169,9 +171,7 @@ const changePage = (page) => {
   }
 };
 
-const truncateId = (id) => {
-  return id.substring(0, 8) + '...';
-};
+
 
 const truncateNotes = (notes) => {
   return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
@@ -195,6 +195,11 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+const editReferral = (referralId) => {
+  console.log('Editar referido con ID:', referralId);
+  // Implementar lógica de edición
+};
+
 onMounted(() => {
   fetchReferrals();
 });
@@ -211,4 +216,9 @@ onMounted(() => {
   font-size: 0.75em;
   padding: 0.35em 0.65em;
 }
+.d-none {
+  display: none;
+}
+
+
 </style>
