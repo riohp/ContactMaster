@@ -49,9 +49,21 @@ const obtenerRuta = () => {
 
       <li class="nav-item">
         <sidenav-item
-          to="/agendizedtable"
-          :class="obtenerRuta() === 'agendizedtable' ? 'active' : ''"
+          to="/agendizedtables"
+          :class="obtenerRuta() === 'agendizedtables' ? 'active' : ''"
           navText="Tabla Agendados"
+        >
+          <template v-slot:icon>
+            <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+          </template>
+        </sidenav-item>
+      </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          to="/create-referral"
+          :class="obtenerRuta() === 'createreferral' ? 'active' : ''"
+          navText="Agregar Referido"
         >
           <template v-slot:icon>
             <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>

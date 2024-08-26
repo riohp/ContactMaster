@@ -8,10 +8,18 @@ const api = axios.create({
 });
 
 export default {
-  async getReferrals() {
+  async getReferrals(page = 1, pageSize = 10) {
     try {
-      const response = await api.get('/Referral/Referidos');
-      return { success: true, data: response.data.data || [] };
+      const response = await api.get('/Referral/Referidos', {
+        params: { page, pageSize }
+      });
+      return { 
+        success: true, 
+        data: response.data.data || [], 
+        totalCount: response.data.totalCount,
+        page: response.data.page,
+        pageSize: response.data.pageSize
+      };
     } catch (error) {
       if (error.response && error.response.status === 404) {
         return { 
