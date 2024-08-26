@@ -1,5 +1,6 @@
 <script setup>
 import MiniStatisticsCard from "@/examples/Cards/MiniStatisticsCard.vue";
+import GradientLineChart from "@/examples/Charts/GradientLineChart.vue";
 
 </script>
 <template>
