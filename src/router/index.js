@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Signin from "../views/Signin.vue";
-import AgendizedTable from "../views/AgendizedTable.vue";
+import AgendizedTables from "../views/AgendizedTables.vue";
+import CreateReferral from "../views/CreateReferral.vue";
 
 const routes = [
   {
@@ -21,9 +22,14 @@ const routes = [
     component: Tables,
   },
   {
-    path: "/agendizedtable",
-    name: "AgendzideTable",
-    component: AgendizedTable,
+    path: "/agendizedtables",
+    name: "AgendizedTables",
+    component: AgendizedTables,
+  },
+  {
+    path: "/create-referral",
+    name: "CreateReferral",
+    component: CreateReferral,
   },
   {
     path: "/signin",
