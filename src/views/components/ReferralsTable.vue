@@ -46,7 +46,7 @@
                 <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
               </td>  
               <td class="text-xs">
-                <button class="btn px-4  btn-primary" @click="editReferral(referral.referralId)">
+                <button class="btn px-4 btn-primary" @click="editReferral(referral.referralId)">
                   <i class="fas fa-edit"></i>
                 </button>
               </td>
@@ -91,12 +91,22 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de edición -->
+  <ReferralEditModal 
+    v-if="showEditModal"
+    :referral-id="selectedReferralId"
+    :is-visible="showEditModal"
+    @close="closeEditModal"
+    @updated="onReferralUpdated"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import Swal from 'sweetalert2';
 import api from '@/services/api.js';
+import ReferralEditModal from './ReferralEditModal.vue';
 
 const referrals = ref([]);
 const loading = ref(true);
@@ -104,6 +114,8 @@ const noReferralsMessage = ref('No se encontraron referidos');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalCount = ref(0);
+const showEditModal = ref(false);
+const selectedReferralId = ref(null);
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
@@ -171,8 +183,6 @@ const changePage = (page) => {
   }
 };
 
-
-
 const truncateNotes = (notes) => {
   return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
 };
@@ -181,12 +191,12 @@ const getStatusBadgeClass = (status) => {
   switch (status.toLowerCase()) {
     case 'agendado':
       return 'bg-info';
-    case 'completado':
+    case 'exitoso':
       return 'bg-success';
-    case 'pendiente':
+    case 'en proceso':
       return 'bg-warning';
     default:
-      return 'bg-secondary';
+      return 'bg-danger';
   }
 };
 
@@ -196,8 +206,37 @@ const formatDate = (dateString) => {
 };
 
 const editReferral = (referralId) => {
-  console.log('Editar referido con ID:', referralId);
-  // Implementar lógica de edición
+  console.log('entro id:', referralId);
+  if (referralId) {
+    selectedReferralId.value = referralId;
+    showEditModal.value = true;
+  } else {
+    console.error('ID de referido no válido');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo editar el referido: ID no válido'
+    });
+  }
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  selectedReferralId.value = null;
+};
+
+const onReferralUpdated = (updatedReferral) => {
+  const index = referrals.value.findIndex(r => r.referralId === updatedReferral.referralId);
+  if (index !== -1) {
+    referrals.value[index] = updatedReferral;
+  }
+  Swal.fire({
+    icon: 'success',
+    title: 'Éxito',
+    text: 'El referido ha sido actualizado correctamente.',
+    timer: 2000,
+    showConfirmButton: false
+  });
 };
 
 onMounted(() => {
@@ -219,6 +258,4 @@ onMounted(() => {
 .d-none {
   display: none;
 }
-
-
 </style>
