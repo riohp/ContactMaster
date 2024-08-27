@@ -3,7 +3,7 @@ import ReferralForm from './components/ReferralForm.vue';
 </script>
 
 <template>
-  <div class="py-4 container-fluid">
+  <div class="container">
     <div class="row">
       <div class="col-12">
         <referral-form />

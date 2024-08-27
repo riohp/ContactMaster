@@ -108,5 +108,42 @@ export default {
         };
       }
     }
+  },
+
+  async createReferral(createDto) {
+    try {
+      const response = await api.post('/Referral/CrearReferido', createDto);
+      if (response.status === 201) {
+        return {
+          success: true,
+          data: response.data.data,
+          message: response.data.message || "Referido creado exitosamente."
+        };
+      } else {
+        return {
+          success: false,
+          error: response.data.message || "Error al crear el referido."
+        };
+      }
+    } catch (error) {
+      console.error('Error en createReferral:', error);
+      if (error.response) {
+        return { 
+          success: false, 
+          error: error.response.data.message || "Error desconocido",
+          details: error.response.data
+        };
+      } else if (error.request) {
+        return { 
+          success: false, 
+          error: "No se recibió respuesta del servidor" 
+        };
+      } else {
+        return { 
+          success: false, 
+          error: error.message || 'Error al crear el referido'
+        };
+      }
+    }
   }
 };

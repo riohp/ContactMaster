@@ -1,21 +1,21 @@
 <template>
   <div class="card">
     <div class="card-header pb-0">
-      <h6>Tabla De Referidos</h6>
+      <h6>Tabla De Agendados y En Proceso</h6>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
-      <div v-if="!loading && referrals.length === 0" class="text-center py-5">
+      <div v-if="!loading && filteredReferrals.length === 0" class="text-center py-5">
         <i class="fas fa-users fa-3x text-secondary mb-3"></i>
         <h5 class="text-secondary">{{ noReferralsMessage }}</h5>
         <p class="text-muted">Cuando tengas referidos, aparecerán aquí.</p>
       </div>
-      <!-- Spinner de carga -->
+      <!-- Spinner of loading -->
       <div v-else-if="loading" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
-      <!-- Tabla de referidos -->
+      <!-- Table of referral -->
       <div v-else class="table-responsive p-0">
         <table class="table align-items-center text-center mb-0">
           <thead>
@@ -29,7 +29,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
+            <tr v-for="referral in filteredReferrals" :key="referral.referralId" :data-full-id="referral.referralId">
               <td class="text-xs">
                 <span class="text-secondary">{{ referral.name }}</span>
               </td>
@@ -46,17 +46,17 @@
                 <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
               </td>  
               <td class="text-xs">
-                <button class="btn px-4  btn-primary" @click="editReferral(referral.referralId)">
+                <button class="btn px-4 btn-primary" @click="editReferral(referral.referralId)">
                   <i class="fas fa-edit"></i>
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
-        <!-- Paginación -->
+        <!-- pagination -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
           <div class="text-sm text-secondary mb-2 mb-md-0">
-            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
+            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredTotalCount) }} de {{ filteredTotalCount }} resultados
           </div>
           <nav aria-label="Page navigation">
             <ul class="pagination pagination-sm flex-wrap justify-content-center mb-0">
@@ -91,12 +91,24 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal of edit -->
+  <ReferralEditModal 
+    v-if="showEditModal"
+    :referral-id="selectedReferralId"
+    :is-visible="showEditModal"
+    @close="closeEditModal"
+    @updated="onReferralUpdated"
+  />
 </template>
+
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import Swal from 'sweetalert2';
 import api from '@/services/api.js';
+import ReferralEditModal from './ReferralEditModal.vue';
+import { getStatusBadgeClass } from "@/assets/js/bg-status.js";
 
 const referrals = ref([]);
 const loading = ref(true);
@@ -104,8 +116,17 @@ const noReferralsMessage = ref('No se encontraron referidos');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalCount = ref(0);
+const showEditModal = ref(false);
+const selectedReferralId = ref(null);
 
-const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
+const filteredReferrals = computed(() => {
+  return referrals.value.filter(referral => 
+    referral.status === 'agendado' || referral.status === 'en proceso'
+  );
+});
+
+const filteredTotalCount = computed(() => filteredReferrals.value.length);
+const totalPages = computed(() => Math.ceil(filteredTotalCount.value / pageSize.value));
 
 const visiblePages = computed(() => {
   const delta = 2;
@@ -147,8 +168,8 @@ const fetchReferrals = async () => {
   if (result.success) {
     referrals.value = result.data;
     totalCount.value = result.totalCount;
-    if (result.message) {
-      noReferralsMessage.value = result.message;
+    if (filteredReferrals.value.length === 0) {
+      noReferralsMessage.value = 'No se encontraron referidos agendados o en proceso';
     }
   } else {
     console.error('Error fetching referrals:', result.error);
@@ -171,23 +192,8 @@ const changePage = (page) => {
   }
 };
 
-
-
 const truncateNotes = (notes) => {
   return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
-};
-
-const getStatusBadgeClass = (status) => {
-  switch (status.toLowerCase()) {
-    case 'agendado':
-      return 'bg-info';
-    case 'completado':
-      return 'bg-success';
-    case 'pendiente':
-      return 'bg-warning';
-    default:
-      return 'bg-secondary';
-  }
 };
 
 const formatDate = (dateString) => {
@@ -196,8 +202,37 @@ const formatDate = (dateString) => {
 };
 
 const editReferral = (referralId) => {
-  console.log('Editar referido con ID:', referralId);
-  // Implementar lógica de edición
+  console.log('entro id:', referralId);
+  if (referralId) {
+    selectedReferralId.value = referralId;
+    showEditModal.value = true;
+  } else {
+    console.error('ID de referido no válido');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo editar el referido: ID no válido'
+    });
+  }
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  selectedReferralId.value = null;
+};
+
+const onReferralUpdated = (updatedReferral) => {
+  const index = referrals.value.findIndex(r => r.referralId === updatedReferral.referralId);
+  if (index !== -1) {
+    referrals.value[index] = updatedReferral;
+  }
+  Swal.fire({
+    icon: 'success',
+    title: 'Éxito',
+    text: 'El referido ha sido actualizado correctamente.',
+    timer: 2000,
+    showConfirmButton: false
+  });
 };
 
 onMounted(() => {
@@ -219,6 +254,4 @@ onMounted(() => {
 .d-none {
   display: none;
 }
-
-
 </style>
