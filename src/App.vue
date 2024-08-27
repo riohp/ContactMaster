@@ -36,12 +36,8 @@ const navClasses = computed(() => {
   <main
     class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
   >
-
-
     <navbar :class="[navClasses]" v-if="showNavbar" />
-
     <router-view />
-
     <app-footer v-show="showFooter" />
   </main>
 </template>

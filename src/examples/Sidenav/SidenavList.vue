@@ -74,10 +74,10 @@ const obtenerRuta = () => {
 
       <li class="mt-3 nav-item">
         <h6
-          class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
+          class="text-xs ps-4 tex-center font-weight-bolder opacity-6"
           :class="esRTL ? 'me-4' : 'ms-2'"
         >
-          PÁGINAS DE CUENTA
+          Opcion
         </h6>
       </li>
 

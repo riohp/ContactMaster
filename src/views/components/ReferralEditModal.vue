@@ -28,7 +28,7 @@
                 <label for="phoneNumber">Teléfono</label>
                 <input type="tel" class="form-control" id="phoneNumber" v-model="referral.phoneNumber" required pattern="[0-9]{10}">
                 <div class="invalid-feedback">
-                  Por favor, ingrese un número de teléfono válido (10 dígitos).
+                  Por favor, ingrese un número de teléfono válido.
                 </div>
               </div>
               <div :class="['form-group', validationClass(referral.status)]">
