@@ -14,8 +14,7 @@ const darkMode = computed(() => store.state.darkMode);
 <template>
   <div
     v-show="layout === 'default'"
-    class="min-height-300 position-absolute w-100"
-    :class="`${darkMode ? 'bg-transparent' : 'bg-success'}`"
+    class="min-height-300 position-absolute w-100 bg-dark"
   />
 
   <aside

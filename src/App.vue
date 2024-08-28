@@ -3,7 +3,6 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import Sidenav from "./examples/Sidenav";
-import AppFooter from "@/examples/Footer.vue";
 
 const store = useStore();
 const isNavFixed = computed(() => store.state.isNavFixed);
@@ -12,7 +11,6 @@ const isAbsolute = computed(() => store.state.isAbsolute);
 const showSidenav = computed(() => store.state.showSidenav);
 const layout = computed(() => store.state.layout);
 const showNavbar = computed(() => store.state.showNavbar);
-const showFooter = computed(() => store.state.showFooter);
 
 const navClasses = computed(() => {
   return {
@@ -38,6 +36,5 @@ const navClasses = computed(() => {
   >
     <navbar :class="[navClasses]" v-if="showNavbar" />
     <router-view />
-    <app-footer v-show="showFooter" />
   </main>
 </template>

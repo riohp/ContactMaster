@@ -54,7 +54,7 @@ const obtenerRuta = () => {
           navText="Tabla Agendados"
         >
           <template v-slot:icon>
-            <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+            <i class="ni ni-calendar-grid-58 text-info text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
@@ -66,7 +66,7 @@ const obtenerRuta = () => {
           navText="Agregar Referido"
         >
           <template v-slot:icon>
-            <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+            <i class="fa fa-user-plus text-success pb-1 text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
@@ -80,39 +80,18 @@ const obtenerRuta = () => {
           Opcion
         </h6>
       </li>
-
-      <li class="nav-item">
+  
+      <li class="nav-item divider">
         <sidenav-item
           to="/signin"
           :class="obtenerRuta() === 'signin' ? 'active' : ''"
           navText="Cerrar Sesión"
         >
           <template v-slot:icon>
-            <i class="ni ni-single-copy-04 text-danger text-sm opacity-10"></i>
+            <i class="fa fa-power-off pb-1 text-danger text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
     </ul>
-  </div>
-
-  <div class="pt-3 mx-3 mt-3 sidenav-footer">
-    <sidenav-card
-      :card="{
-        title: '¿Necesitas ayuda?',
-        description: 'Por favor, consulta nuestra documentación',
-        links: [
-          {
-            label: 'Documentación',
-            route: 'https://www.creative-tim.com/learning-lab/vue/overview/argon-dashboard/',
-            color: 'dark',
-          },
-          {
-            label: 'Comprar ahora',
-            route: 'https://www.creative-tim.com/product/vue-argon-dashboard-pro?ref=vadp',
-            color: 'success',
-          },
-        ],
-      }"
-    />
   </div>
 </template>
