@@ -56,25 +56,12 @@
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
                   <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <li class="page-item" v-if="currentPage > 2">
-                <a class="page-link" href="#" @click.prevent="changePage(1)">1</a>
-              </li>
-              <li class="page-item disabled" v-if="currentPage > 3">
-                <span class="page-link">...</span>
-              </li>
-              <li class="page-item" v-for="page in visiblePages" :key="page" :class="{ active: currentPage === page }">
+                </a>              </li>
+              <li class="page-item" v-for="page in displayedPages" :key="page" :class="{ active: currentPage === page }">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
               </li>
-              <li class="page-item disabled" v-if="currentPage < totalPages - 2">
-                <span class="page-link">...</span>
-              </li>
-              <li class="page-item" v-if="currentPage < totalPages - 1">
-                <a class="page-link" href="#" @click.prevent="changePage(totalPages)">{{ totalPages }}</a>
-              </li>
               <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
+                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
@@ -101,37 +88,23 @@ const totalCount = ref(0);
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
-const visiblePages = computed(() => {
-  const delta = 2;
-  const range = [];
-  const rangeWithDots = [];
-  let l;
-
-  for (let i = Math.max(2, currentPage.value - delta); i <= Math.min(totalPages.value - 1, currentPage.value + delta); i++) {
+const displayedPages = computed(() => {
+  const delta = 1; 
+  let range = [];
+  
+  for (let i = Math.max(1, currentPage.value - delta); i <= Math.min(totalPages.value, currentPage.value + delta); i++) {
     range.push(i);
   }
-
-  if (range[0] > 2) {
+  
+  // Always include first and last page
+  if (range[0] > 1) {
     range.unshift(1);
   }
-
-  if (range[range.length - 1] < totalPages.value - 1) {
+  if (range[range.length - 1] < totalPages.value) {
     range.push(totalPages.value);
   }
-
-  for (let i of range) {
-    if (l) {
-      if (i - l === 2) {
-        rangeWithDots.push(l + 1);
-      } else if (i - l !== 1) {
-        rangeWithDots.push('...');
-      }
-    }
-    rangeWithDots.push(i);
-    l = i;
-  }
-
-  return rangeWithDots;
+  
+  return range;
 });
 
 const fetchReferrals = async () => {
@@ -145,7 +118,6 @@ const fetchReferrals = async () => {
       noReferralsMessage.value = result.message;
     }
   } else {
-    console.error('Error fetching referrals:', result.error);
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -178,7 +150,6 @@ onMounted(() => {
   fetchReferrals();
 });
 </script>
-
 <style scoped>
 .pagination {
   gap: 5px;

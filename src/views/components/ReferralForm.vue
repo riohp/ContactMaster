@@ -46,16 +46,16 @@
 
         <div :class="['form-group', validationClass('callDate')]">
           <label for="callDate">Fecha de la llamada</label>
-          <input
-            type="date"
-            class="form-control"
-            id="callDate"
-            v-model="referral.callDate"
-            @blur="touchField('callDate')"
-            :min="minDate"
-            :class="{'is-valid': referral.callDate && touchedFields.callDate, 'is-invalid': !referral.callDate && touchedFields.callDate}"
-            required
-          />
+            <input
+              type="date"
+              class="form-control"
+              id="callDate"
+              v-model="referral.callDate"
+              @blur="validateCallDate"
+              :min="minDate"
+              :class="{'is-valid': isCallDateValid && touchedFields.callDate, 'is-invalid': !isCallDateValid && touchedFields.callDate}"
+              required
+            />
           <div class="invalid-feedback">
             Por favor, ingrese una fecha válida que no sea anterior a hoy.
           </div>
@@ -105,6 +105,7 @@ const touchedFields = ref({
 });
 
 const loading = ref(false);
+const isCallDateValid = ref(true);
 
 const touchField = (field) => {
   touchedFields.value[field] = true;
@@ -113,15 +114,25 @@ const touchField = (field) => {
 const validationClass = (field) => {
   const value = referral.value[field];
   const touched = touchedFields.value[field];
+  if (field === 'callDate') {
+    return touched ? (isCallDateValid.value ? 'is-valid' : 'is-invalid') : '';
+  }
   if (touched && value === '') {
     return 'is-invalid';
   } else if (touched && value !== '') {
     return 'is-valid';
   } else {
-    return ''; // No mostrar ninguna clase si no está tocado
+    return '';
   }
 };
 
+const validateCallDate = () => {
+  touchField('callDate');
+  const selectedDate = new Date(referral.value.callDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  isCallDateValid.value = selectedDate >= today;
+};
 
 const validatePhoneNumber = () => {
   referral.value.phoneNumber = referral.value.phoneNumber.replace(/[^0-9]/g, '');
@@ -141,14 +152,13 @@ const resetForm = () => {
     callDate: false,
     notes: false
   };
+  isCallDateValid.value = true;
 };
 
 const validateAndSubmit = async () => {
-  if (referral.value.name && referral.value.phoneNumber && referral.value.callDate) {
-    // Solo obtener la parte de la fecha sin la hora
+  validateCallDate();
+  if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && isCallDateValid.value) {
     referral.value.callDate = referral.value.callDate.split('T')[0];
-    
-    console.log('Datos enviados:', referral.value); // Log para revisar los datos enviados
 
     loading.value = true;
     try {
@@ -174,7 +184,6 @@ const validateAndSubmit = async () => {
       }
     } catch (error) {
       loading.value = false;
-      console.error('Error al crear el referido:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -185,11 +194,10 @@ const validateAndSubmit = async () => {
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'Por favor, complete todos los campos obligatorios.',
+      text: 'Por favor, complete todos los campos obligatorios correctamente.',
     });
   }
 };
-
 </script>
 
 <style scoped>
