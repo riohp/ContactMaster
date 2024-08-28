@@ -26,7 +26,7 @@
               </div>
               <div :class="['form-group', validationClass(referral.phoneNumber)]">
                 <label for="phoneNumber">Teléfono</label>
-                <input type="tel" class="form-control" id="phoneNumber" v-model="referral.phoneNumber" required pattern="[0-9]{10}">
+                <input type="tel" class="form-control" id="phoneNumber" v-model="referral.phoneNumber" @input="validatePhoneNumber" required pattern="[0-9]{10}" maxlength="10">
                 <div class="invalid-feedback">
                   Por favor, ingrese un número de teléfono válido.
                 </div>
@@ -64,6 +64,10 @@
 import { ref, onMounted, watch } from 'vue';
 import api from '@/services/api.js';
 import Swal from 'sweetalert2';
+
+const validatePhoneNumber = (event) => {
+  referral.value.phoneNumber = event.target.value.replace(/\D/g, '');
+};
 
 const props = defineProps({
   referralId: String,
