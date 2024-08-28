@@ -1,9 +1,9 @@
 <template>
   <div class="card">
-    <div class="card-header pb-0">
+    <div class="card-header">
       <h6>Tabla De Agendados y En Proceso</h6>
     </div>
-    <div class="card-body px-0 pt-0 pb-2">
+    <div class="card-body">
       <div v-if="!loading && filteredReferrals.length === 0" class="text-center py-5">
         <i class="fas fa-users fa-3x text-secondary mb-3"></i>
         <h5 class="text-secondary">{{ noReferralsMessage }}</h5>
@@ -56,7 +56,7 @@
         <!-- pagination -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
           <div class="text-sm text-secondary mb-2 mb-md-0">
-            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, filteredTotalCount) }} de {{ filteredTotalCount }} resultados
+            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
           </div>
           <nav aria-label="Page navigation">
             <ul class="pagination pagination-sm flex-wrap justify-content-center mb-0">
@@ -65,20 +65,8 @@
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
-              <li class="page-item" v-if="currentPage > 2">
-                <a class="page-link" href="#" @click.prevent="changePage(1)">1</a>
-              </li>
-              <li class="page-item disabled" v-if="currentPage > 3">
-                <span class="page-link">...</span>
-              </li>
               <li class="page-item" v-for="page in visiblePages" :key="page" :class="{ active: currentPage === page }">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-              </li>
-              <li class="page-item disabled" v-if="currentPage < totalPages - 2">
-                <span class="page-link">...</span>
-              </li>
-              <li class="page-item" v-if="currentPage < totalPages - 1">
-                <a class="page-link" href="#" @click.prevent="changePage(totalPages)">{{ totalPages }}</a>
               </li>
               <li class="page-item" :class="{ disabled: currentPage === totalPages }">
                 <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
@@ -102,9 +90,8 @@
   />
 </template>
 
-
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import Swal from 'sweetalert2';
 import api from '@/services/api.js';
 import ReferralEditModal from './ReferralEditModal.vue';
@@ -125,64 +112,53 @@ const filteredReferrals = computed(() => {
   );
 });
 
-const filteredTotalCount = computed(() => filteredReferrals.value.length);
-const totalPages = computed(() => Math.ceil(filteredTotalCount.value / pageSize.value));
+const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
 const visiblePages = computed(() => {
   const delta = 2;
-  const range = [];
-  const rangeWithDots = [];
-  let l;
-
-  for (let i = Math.max(2, currentPage.value - delta); i <= Math.min(totalPages.value - 1, currentPage.value + delta); i++) {
+  let range = [];
+  for (let i = Math.max(1, currentPage.value - delta); i <= Math.min(totalPages.value, currentPage.value + delta); i++) {
     range.push(i);
   }
-
-  if (range[0] > 2) {
-    range.unshift(1);
-  }
-
-  if (range[range.length - 1] < totalPages.value - 1) {
-    range.push(totalPages.value);
-  }
-
-  for (let i of range) {
-    if (l) {
-      if (i - l === 2) {
-        rangeWithDots.push(l + 1);
-      } else if (i - l !== 1) {
-        rangeWithDots.push('...');
-      }
-    }
-    rangeWithDots.push(i);
-    l = i;
-  }
-
-  return rangeWithDots;
+  return range;
 });
 
 const fetchReferrals = async () => {
   loading.value = true;
-  const result = await api.getReferrals(currentPage.value, pageSize.value);
-  
-  if (result.success) {
-    referrals.value = result.data;
-    totalCount.value = result.totalCount;
-    if (filteredReferrals.value.length === 0) {
-      noReferralsMessage.value = 'No se encontraron referidos agendados o en proceso';
+  try {
+    const result = await api.getReferrals(currentPage.value, pageSize.value);
+    console.log('API Response:', result); // Mantener para depuración
+
+    if (result.success) {
+      referrals.value = result.data;
+      totalCount.value = result.totalCount;
+      currentPage.value = result.page;
+      pageSize.value = result.pageSize;
+
+      if (filteredReferrals.value.length === 0) {
+        noReferralsMessage.value = 'No se encontraron referidos agendados o en proceso';
+      }
+    } else {
+      throw new Error(result.message || 'Error al obtener los referidos');
     }
-  } else {
-    console.error('Error fetching referrals:', result.error);
+  } catch (error) {
+    console.error('Error fetching referrals:', error);
+    let errorMessage = 'Error al cargar los referidos. ';
+    if (error.message) {
+      errorMessage += error.message;
+    } else {
+      errorMessage += 'Por favor, inténtelo más tarde.';
+    }
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: result.error === "Error de conexión" 
-        ? 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.'
-        : 'Error al cargar los referidos. Por favor, inténtelo más tarde.',
+      text: errorMessage,
     });
+    referrals.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
   }
-  
-  loading.value = false;
 };
 
 const changePage = (page) => {
@@ -202,7 +178,6 @@ const formatDate = (dateString) => {
 };
 
 const editReferral = (referralId) => {
-  console.log('entro id:', referralId);
   if (referralId) {
     selectedReferralId.value = referralId;
     showEditModal.value = true;
@@ -238,6 +213,10 @@ const onReferralUpdated = (updatedReferral) => {
 onMounted(() => {
   fetchReferrals();
 });
+
+watch(currentPage, () => {
+  fetchReferrals();
+});
 </script>
 
 <style scoped>
@@ -250,8 +229,5 @@ onMounted(() => {
 .badge {
   font-size: 0.75em;
   padding: 0.35em 0.65em;
-}
-.d-none {
-  display: none;
 }
 </style>
