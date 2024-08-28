@@ -159,8 +159,6 @@ const validateAndSubmit = async () => {
   validateCallDate();
   if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && isCallDateValid.value) {
     referral.value.callDate = referral.value.callDate.split('T')[0];
-    
-    console.log('Datos enviados:', referral.value);
 
     loading.value = true;
     try {
@@ -186,7 +184,6 @@ const validateAndSubmit = async () => {
       }
     } catch (error) {
       loading.value = false;
-      console.error('Error al crear el referido:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',

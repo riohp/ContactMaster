@@ -145,7 +145,6 @@ const fetchReferrals = async () => {
       noReferralsMessage.value = result.message;
     }
   } else {
-    console.error('Error fetching referrals:', result.error);
     Swal.fire({
       icon: 'error',
       title: 'Error',
