@@ -6,7 +6,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Editar Referido</h5>
-            <button type="button" class="close" @click="close" aria-label="Close">
+            <button type="button" class="btn btn-danger close" @click="close" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
