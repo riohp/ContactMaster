@@ -58,7 +58,7 @@ onBeforeUnmount(() => {
                       <argon-button
                         class="mt-4"
                         variant="gradient"
-                        color="success"
+                        color="dark"
                         fullWidth
                         size="lg"
                         @click="redirectToDashboard" 
@@ -76,7 +76,7 @@ onBeforeUnmount(() => {
                   background-size: cover;
                 "
               >
-                <span class="mask bg-gradient-success opacity-6"></span>
+                <span class="mask bg-gradien-dark opacity-6"></span>
                 <h4 class="mt-5 text-white font-weight-bolder position-relative">
                   Control de Agenda ABAI
                 </h4>
