@@ -61,7 +61,7 @@
 </template>
 <script setup>
 import { onMounted, watch } from 'vue';
-import useReferralEditModal from '@/composables/useReferralEditModal';
+import useReferralEditModal from '@/services/useReferralEditModal';
 
 const props = defineProps({
   referralId: String,
