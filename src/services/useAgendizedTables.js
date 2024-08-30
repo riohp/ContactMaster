@@ -9,11 +9,12 @@ export function useAgendizedTables() {
   const noReferralsMessage = ref('No se encontraron referidos');
   const showEditModal = ref(false);
   const selectedReferralId = ref(null);
+  const searchTerm = ref('');
 
   const fetchReferrals = async () => {
     loading.value = true;
     try {
-      const result = await api.getReferrals(currentPage.value, pageSize);
+      const result = await api.getReferrals(currentPage.value, pageSize, searchTerm.value);
 
       if (result.success) {
         referrals.value = result.data;
@@ -49,9 +50,22 @@ export function useAgendizedTables() {
 
   const filteredReferrals = computed(() => {
     return referrals.value.filter(referral => 
-      referral.status === 'agendado' || referral.status === 'en proceso'
+      (referral.status === 'agendado' || referral.status === 'en proceso') &&
+      (searchTerm.value === '' || 
+       referral.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+       String(referral.phoneNumber).includes(searchTerm.value))
     );
   });
+
+  const debounceSearch = (() => {
+    let timer;
+    return () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        fetchReferrals();
+      }, 300); 
+    };
+  })();
 
   const truncateNotes = (notes) => {
     return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
@@ -112,6 +126,8 @@ export function useAgendizedTables() {
     editReferral,
     closeEditModal,
     onReferralUpdated,
-    getStatusBadgeClass
+    getStatusBadgeClass,
+    searchTerm,
+    debounceSearch
   };
 }

@@ -1,7 +1,18 @@
 <template>
   <div class="card">
-    <div class="card-header pb-0">
-      <h6>Tabla De Referidos</h6>
+    <div class="card-header">
+      <h6 class="container">Tabla De Referidos</h6>
+    </div>
+    <div class="container d-flex justify-content-end">
+      <div class="input-group w-25">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar referido..."
+          v-model="searchTerm"
+          @input="debounceSearch"
+        >
+      </div>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div v-if="!loading && referrals.length === 0" class="text-center py-5">
@@ -27,7 +38,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
+            <tr v-for="referral in filteredReferrals" :key="referral.referralId" :data-full-id="referral.referralId">
               <td class="text-xs">
                 <span class="text-secondary ">{{ referral.name }}</span>
               </td>
@@ -42,7 +53,7 @@
               </td>
               <td class="text-xs">
                 <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
-              </td>  
+              </td>
             </tr>
           </tbody>
         </table>
@@ -56,12 +67,13 @@
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
                   <span aria-hidden="true">&laquo;</span>
-                </a>              </li>
+                </a>
+              </li>
               <li class="page-item" v-for="page in displayedPages" :key="page" :class="{ active: currentPage === page }">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
               </li>
               <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
@@ -85,18 +97,18 @@ const noReferralsMessage = ref('No se encontraron referidos');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalCount = ref(0);
+const searchTerm = ref('');
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
 const displayedPages = computed(() => {
-  const delta = 1; 
+  const delta = 1;
   let range = [];
   
   for (let i = Math.max(1, currentPage.value - delta); i <= Math.min(totalPages.value, currentPage.value + delta); i++) {
     range.push(i);
   }
-  
-  // Always include first and last page
+
   if (range[0] > 1) {
     range.unshift(1);
   }
@@ -107,10 +119,21 @@ const displayedPages = computed(() => {
   return range;
 });
 
+const filteredReferrals = computed(() => {
+  if (!searchTerm.value) {
+    return referrals.value;
+  }
+  return referrals.value.filter(referral =>
+    referral.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+    String(referral.phoneNumber).includes(searchTerm.value) ||
+    referral.status.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
 const fetchReferrals = async () => {
   loading.value = true;
-  const result = await api.getReferrals(currentPage.value, pageSize.value);
-  
+  const result = await api.getReferrals(currentPage.value, pageSize.value, searchTerm.value);
+
   if (result.success) {
     referrals.value = result.data;
     totalCount.value = result.totalCount;
@@ -146,10 +169,22 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+const debounceSearch = (() => {
+  let timer;
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      fetchReferrals(); // Perform search
+    }, 300); // Ajusta el retraso según sea necesario
+  };
+})();
+
 onMounted(() => {
   fetchReferrals();
 });
+
 </script>
+
 <style scoped>
 .pagination {
   gap: 5px;

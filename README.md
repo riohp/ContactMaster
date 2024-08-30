@@ -23,20 +23,8 @@ vue-agenda-ab
     │   │   ├── js
     │   │   └── scss
     │   ├── components
-    │   │   ├── ArgonAlert.vue
-    │   │   ├── ArgonAvatar.vue
-    │   │   ├── ArgonBadge.vue
     │   │   ├── ArgonButton.vue
-    │   │   ├── ArgonCheckbox.vue
     │   │   ├── ArgonInput.vue
-    │   │   ├── ArgonPagination.vue
-    │   │   ├── ArgonPaginationItem.vue
-    │   │   ├── ArgonProgress.vue
-    │   │   ├── ArgonRadio.vue
-    │   │   ├── ArgonSnackbar.vue
-    │   │   ├── ArgonSocialButton.vue
-    │   │   ├── ArgonSwitch.vue
-    │   │   └── ArgonTextarea.vue
     │   ├── examples
     │   │   ├── Cards
     │   │   ├── Charts

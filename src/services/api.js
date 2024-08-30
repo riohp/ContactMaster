@@ -145,5 +145,43 @@ export default {
         };
       }
     }
-  }
+  },
+
+  async searchReferrals(searchTerm, page = 1, pageSize = 10) {
+    try {
+      const response = await api.get('/Referral/BuscarReferidos', {
+        params: { searchTerm, page, pageSize }
+      });
+      if (response.data && response.data.statusCode === 200) {
+        return {
+          success: true,
+          data: response.data.data || [],
+          totalCount: response.data.totalCount,
+          page: response.data.page,
+          pageSize: response.data.pageSize,
+          message: response.data.message
+        };
+      } else {
+        return {
+          success: false,
+          error: response.data.message || "Respuesta inesperada del servidor"
+        };
+      }
+    } catch (error) {
+      console.error('Error en searchReferrals:', error);
+      if (error.response && error.response.status === 404) {
+        return { 
+          success: false, 
+          error: error.response.data.message || "No se encontraron referidos que coincidan con la búsqueda."
+        };
+      } else if (error.message === 'Network Error' || !error.response) {
+        return { success: false, error: "Error de conexión" };
+      } else {
+        return { 
+          success: false, 
+          error: error.response?.data?.message || 'Error al buscar referidos'
+        };
+      }
+    }
+  },
 };

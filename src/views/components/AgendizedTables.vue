@@ -1,7 +1,18 @@
 <template>
   <div class="card">
-    <div class="card-header">
-      <h6>Tabla De Agendados y En Proceso</h6>
+    <div class="card-header ">
+      <h6 class="container">Tabla De Agendados y En Proceso</h6>
+    </div>
+    <div class="container d-flex justify-content-end">
+      <div class="input-group w-25">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar referido..."
+          v-model="searchTerm"
+          @input="debounceSearch"  
+        >
+      </div>
     </div>
     <div class="card-body">
       <div v-if="!loading && filteredReferrals.length === 0" class="text-center py-5">
@@ -9,13 +20,13 @@
         <h5 class="text-secondary">{{ noReferralsMessage }}</h5>
         <p class="text-muted">Cuando tengas referidos, aparecerán aquí.</p>
       </div>
-      <!-- Spinner of loading -->
+      
       <div v-else-if="loading" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
-      <!-- Table of referral -->
+
       <div v-else class="table-responsive p-0">
         <table class="table align-items-center text-center mb-0">
           <thead>
@@ -44,7 +55,7 @@
               </td>
               <td class="text-xs">
                 <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
-              </td>  
+              </td>
               <td class="text-xs">
                 <button class="btn px-4 btn-primary" @click="editReferral(referral.referralId)">
                   <i class="fas fa-edit"></i>
@@ -53,12 +64,12 @@
             </tr>
           </tbody>
         </table>
-        <!-- pagination -->
+     
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
           <div class="text-sm text-secondary mb-2 mb-md-0">
             Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
           </div>
-           <PaginatorAgendized
+          <PaginatorAgendized
             :current-page="currentPage"
             :total-pages="totalPages"
             @change-page="changePage"
@@ -68,7 +79,6 @@
     </div>
   </div>
 
-  <!-- Modal of edit -->
   <ReferralEditModal 
     v-if="showEditModal"
     :referral-id="selectedReferralId"
@@ -101,7 +111,9 @@ const {
   editReferral,
   closeEditModal,
   onReferralUpdated,
-  getStatusBadgeClass
+  getStatusBadgeClass,  
+  searchTerm,
+  debounceSearch  
 } = useAgendizedTables();
 
 onMounted(() => {
