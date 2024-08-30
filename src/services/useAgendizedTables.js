@@ -14,7 +14,12 @@ export function useAgendizedTables() {
   const fetchReferrals = async () => {
     loading.value = true;
     try {
-      const result = await api.getReferrals(currentPage.value, pageSize, searchTerm.value);
+      let result;
+      if (searchTerm.value) {
+        result = await api.searchReferrals(searchTerm.value, currentPage.value, pageSize.value);
+      } else {
+        result = await api.getReferrals(currentPage.value, pageSize.value);
+      }
 
       if (result.success) {
         referrals.value = result.data;
@@ -24,15 +29,15 @@ export function useAgendizedTables() {
           noReferralsMessage.value = 'No se encontraron referidos agendados o en proceso';
         }
       } else {
-        throw new Error(result.message || 'Error al obtener los referidos');
+        throw new Error(result.error || 'Error al obtener los referidos');
       }
     } catch (error) {
       console.error('Error fetching referrals:', error);
       let errorMessage = 'Error al cargar los referidos. ';
-      if (error.message) {
-        errorMessage += error.message;
+      if (error.message === 'Error de conexión') {
+        errorMessage += 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.';
       } else {
-        errorMessage += 'Por favor, inténtelo más tarde.';
+        errorMessage += error.message || 'Por favor, inténtelo más tarde.';
       }
       Swal.fire({
         icon: 'error',
@@ -50,10 +55,7 @@ export function useAgendizedTables() {
 
   const filteredReferrals = computed(() => {
     return referrals.value.filter(referral => 
-      (referral.status === 'agendado' || referral.status === 'en proceso') &&
-      (searchTerm.value === '' || 
-       referral.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-       String(referral.phoneNumber).includes(searchTerm.value))
+      (referral.status === 'agendado' || referral.status === 'en proceso')
     );
   });
 
@@ -62,6 +64,7 @@ export function useAgendizedTables() {
     return () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
+        currentPage.value = 1; // Reset to first page on new search
         fetchReferrals();
       }, 300); 
     };
