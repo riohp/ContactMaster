@@ -1,7 +1,18 @@
 <template>
   <div class="card">
-    <div class="card-header pb-0">
-      <h6>Tabla De Referidos</h6>
+    <div class="card-header">
+      <h6 class="container">Tabla De Referidos</h6>
+    </div>
+    <div class="container d-flex justify-content-end">
+      <div class="input-group w-25">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar referido..."
+          v-model="searchTerm"
+          @input="debounceSearch"
+        >
+      </div>
     </div>
     <div class="card-body px-0 pt-0 pb-2">
       <div v-if="!loading && referrals.length === 0" class="text-center py-5">
@@ -29,7 +40,7 @@
           <tbody>
             <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
               <td class="text-xs">
-                <span class="text-secondary ">{{ referral.name }}</span>
+                <span class="text-secondary">{{ referral.name }}</span>
               </td>
               <td class="text-xs">
                 <span class="text-secondary">{{ referral.phoneNumber }}</span>
@@ -56,12 +67,13 @@
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
                   <span aria-hidden="true">&laquo;</span>
-                </a>              </li>
+                </a>
+              </li>
               <li class="page-item" v-for="page in displayedPages" :key="page" :class="{ active: currentPage === page }">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
               </li>
               <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
@@ -74,82 +86,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import Swal from 'sweetalert2';
-import api from '@/services/api.js';
-import { getStatusBadgeClass } from "@/assets/js/bg-status.js";
+import { useReferralsTable } from '@/services/useReferralsTable';
 
-const referrals = ref([]);
-const loading = ref(true);
-const noReferralsMessage = ref('No se encontraron referidos');
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalCount = ref(0);
-
-const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
-
-const displayedPages = computed(() => {
-  const delta = 1; 
-  let range = [];
-  
-  for (let i = Math.max(1, currentPage.value - delta); i <= Math.min(totalPages.value, currentPage.value + delta); i++) {
-    range.push(i);
-  }
-  
-  // Always include first and last page
-  if (range[0] > 1) {
-    range.unshift(1);
-  }
-  if (range[range.length - 1] < totalPages.value) {
-    range.push(totalPages.value);
-  }
-  
-  return range;
-});
-
-const fetchReferrals = async () => {
-  loading.value = true;
-  const result = await api.getReferrals(currentPage.value, pageSize.value);
-  
-  if (result.success) {
-    referrals.value = result.data;
-    totalCount.value = result.totalCount;
-    if (result.message) {
-      noReferralsMessage.value = result.message;
-    }
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: result.error === "Error de conexión" 
-        ? 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.'
-        : 'Error al cargar los referidos. Por favor, inténtelo más tarde.',
-    });
-  }
-  
-  loading.value = false;
-};
-
-const changePage = (page) => {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    fetchReferrals();
-  }
-};
-
-const truncateNotes = (notes) => {
-  return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
-};
-
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-};
-
-onMounted(() => {
-  fetchReferrals();
-});
+const {
+  referrals,
+  loading,
+  noReferralsMessage,
+  currentPage,
+  pageSize,
+  totalCount,
+  searchTerm,
+  totalPages,
+  displayedPages,
+  changePage,
+  truncateNotes,
+  formatDate,
+  debounceSearch,
+  getStatusBadgeClass
+} = useReferralsTable();
 </script>
+
 <style scoped>
 .pagination {
   gap: 5px;
