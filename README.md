@@ -28,11 +28,10 @@ vue-agenda-ab
     │   ├── examples
     │   │   ├── Cards
     │   │   ├── Charts
-    │   │   ├── Navbars
     │   │   ├── PageLayout
     │   │   ├── Sidenav
     │   │   ├── Breadcrumbs.vue
-    │   │   ├── Configurator.vue
+    |   |   ├── Globe.vue
     │   │   └── Footer.vue
     │   ├── router
     |   ├── services
@@ -40,15 +39,13 @@ vue-agenda-ab
     │   ├── store
     │   ├── views
     │   │   ├── components
-    │   │   ├── Billing.vue
+    |   |   ├── AgendizendTables.vue
+    |   |   ├── CreateReferral.vue
     │   │   ├── Dashboard.vue
     │   │   ├── Home.vue
     │   │   ├── Profile.vue
-    │   │   ├── Rtl.vue
     │   │   ├── Signin.vue
-    │   │   ├── Signup.vue
     │   │   ├── Tables.vue
-    │   │   └── VirtualReality.vue
     │   ├── App.vue
     │   ├── argon-dashboard.js
     │   └── main.js
@@ -57,8 +54,6 @@ vue-agenda-ab
     ├── .gitignore
     ├── babel.config.js
     ├── CHANGELOG.md
-    ├── ISSUE_TEMPLATE.md
-    ├── LICENSE
     ├── package.json
     └── README.md
 ```

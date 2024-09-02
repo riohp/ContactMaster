@@ -2,17 +2,15 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
-
+import { useAuth } from '@/services/authLogin';
 import SidenavItem from "./SidenavItem.vue";
-// Eliminar importación de SidenavCard.vue si ya no lo necesitas
-// import SidenavCard from "./SidenavCard.vue";
 
 const store = useStore();
 const esRTL = computed(() => store.state.isRTL);
-
+const { handleLogout } = useAuth();
 const obtenerRuta = () => {
   const ruta = useRoute();
-  const rutaArr = ruta.path.split("/");
+  const rutaArr = ruta.path.split("/");    
   return rutaArr[1];
 };
 </script>
@@ -81,16 +79,18 @@ const obtenerRuta = () => {
         </h6>
       </li>
   
-      <li class="nav-item divider">
-        <sidenav-item
-          to="/signin"
-          :class="obtenerRuta() === 'signin' ? 'active' : ''"
-          navText="Cerrar Sesión"
+        <li class="nav-item divider">
+        <a
+          href="#"
+          @click.prevent="handleLogout"
+          :class="{ 'active': obtenerRuta() === 'signin' }"
+          class="nav-link"
         >
-          <template v-slot:icon>
+          <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
             <i class="fa fa-power-off pb-1 text-danger text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
+          </div>
+          <span class="nav-link-text ms-1">Cerrar Sesión</span>
+        </a>
       </li>
     </ul>
   </div>

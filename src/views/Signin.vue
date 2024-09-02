@@ -1,26 +1,3 @@
-<script setup>
-import { onBeforeUnmount, onBeforeMount } from "vue";
-import { useStore } from "vuex";
-import ArgonInput from "@/components/ArgonInput.vue";
-import ArgonButton from "@/components/ArgonButton.vue";
-const body = document.getElementsByTagName("body")[0];
-
-const store = useStore();
-onBeforeMount(() => {
-  store.state.hideConfigButton = true;
-  store.state.showNavbar = false;
-  store.state.showSidenav = false;
-  store.state.showFooter = false;
-  body.classList.remove("bg-gray-100");
-});
-onBeforeUnmount(() => {
-  store.state.hideConfigButton = false;
-  store.state.showNavbar = true;
-  store.state.showSidenav = true;
-  store.state.showFooter = true;
-  body.classList.add("bg-gray-100");
-});
-</script>
 <template>
   <main class="mt-0 main-content">
     <section>
@@ -34,18 +11,20 @@ onBeforeUnmount(() => {
                   <p class="mb-0">Ingrese su usuario y contraseña</p>
                 </div>
                 <div class="card-body">
-                  <form role="form">
+                  <form role="form" @submit.prevent="handleLogin">
                     <div class="mb-3">
                       <argon-input
-                        id="email"
-                        type="email"
+                        v-model="username"
+                        id="username"
+                        type="text"
                         placeholder="Usuario"
-                        name="email"
+                        name="username"
                         size="lg"
                       />
                     </div>
                     <div class="mb-3">
                       <argon-input
+                        v-model="password"
                         id="password"
                         type="password"
                         placeholder="Contraseña"
@@ -53,16 +32,21 @@ onBeforeUnmount(() => {
                         size="lg"
                       />
                     </div>
-
+                    <div v-if="errorMessage" class="text-center text-danger mb-3">
+                      {{ errorMessage }}
+                    </div>
                     <div class="text-center">
                       <argon-button
+                        type="submit"
                         class="mt-4"
                         variant="gradient"
                         color="dark"
                         fullWidth
                         size="lg"
-                        @click="redirectToDashboard" 
-                      >Iniciar Sesión</argon-button>
+                        :disabled="isLoading"
+                      >
+                        {{ isLoading ? 'Cargando...' : 'Iniciar Sesión' }}
+                      </argon-button>
                     </div>
                   </form>
                 </div>
@@ -72,11 +56,11 @@ onBeforeUnmount(() => {
               <div
                 class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
                 style="
-                  background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg&quot;);
+                  background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
                   background-size: cover;
                 "
               >
-                <span class="mask bg-gradien-dark opacity-6"></span>
+                <span class="mask bg-gradient-dark opacity-6"></span>
                 <h4 class="mt-5 text-white font-weight-bolder position-relative">
                   Control de Agenda ABAI
                 </h4>
@@ -92,5 +76,64 @@ onBeforeUnmount(() => {
   </main>
 </template>
 
+<script setup>
+import { ref, onBeforeMount, onBeforeUnmount } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from 'vue-router';
+import ArgonInput from "@/components/ArgonInput.vue";
+import ArgonButton from "@/components/ArgonButton.vue";
+import api from '@/services/api.js';
 
+const store = useStore();
+const router = useRouter();
+const username = ref('');
+const password = ref('');
+const errorMessage = ref('');
+const isLoading = ref(false);
 
+const body = document.getElementsByTagName("body")[0];
+
+onBeforeMount(() => {
+  store.state.hideConfigButton = true;
+  store.state.showNavbar = false;
+  store.state.showSidenav = false;
+  store.state.showFooter = false;
+  body.classList.remove("bg-gray-100");
+});
+
+onBeforeUnmount(() => {
+  store.state.hideConfigButton = false;
+  store.state.showNavbar = true;
+  store.state.showSidenav = true;
+  store.state.showFooter = true;
+  body.classList.add("bg-gray-100");
+});
+
+const handleLogin = async () => {
+  errorMessage.value = '';
+  isLoading.value = true;
+  try {
+    const response = await api.login({ username: username.value, password: password.value });
+    if (response.success) {
+      store.commit('setAuth', {
+        token: response.data.token,
+        user: response.data.user
+      });
+      router.push('/dashboard-default');
+    } else {
+      errorMessage.value = response.error || 'Error de inicio de sesión. Por favor, intente de nuevo.';
+    }
+  } catch (error) {
+    console.error('Error de inicio de sesión:', error);
+    if (error.response) {
+      errorMessage.value = error.response.data.message || 'Error del servidor. Por favor, intente de nuevo más tarde.';
+    } else if (error.request) {
+      errorMessage.value = 'No se pudo conectar con el servidor. Por favor, verifique su conexión a internet.';
+    } else {
+      errorMessage.value = 'Error inesperado. Por favor, intente de nuevo.';
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+</script>
