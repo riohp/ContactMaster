@@ -1,24 +1,63 @@
-# agenda-ab
+#### NPM DOWNLOAND
+1. npm install
+2. npm install axios
+3. npm install sweetalert2
 
-## Project setup
+## last to run the project
+nom run serve
+
+### What's included
+
+Within the download you'll find the following directories and files:
+
 ```
-npm install
+vue-agenda-ab
+    ├── public
+    │   ├── favicon.png
+    │   └── index.html
+    ├── src
+    │   ├── assets
+    │   │   ├── css
+    │   │   ├── fonts
+    │   │   ├── img
+    │   │   ├── js
+    │   │   └── scss
+    │   ├── components
+    │   │   ├── ArgonButton.vue
+    │   │   ├── ArgonInput.vue
+    │   ├── examples
+    │   │   ├── Cards
+    │   │   ├── Charts
+    │   │   ├── PageLayout
+    │   │   ├── Sidenav
+    │   │   ├── Breadcrumbs.vue
+    |   |   ├── Globe.vue
+    │   │   └── Footer.vue
+    │   ├── router
+    |   ├── services
+    |   ├── apiServices.js
+    │   ├── store
+    │   ├── views
+    │   │   ├── components
+    |   |   ├── AgendizendTables.vue
+    |   |   ├── CreateReferral.vue
+    │   │   ├── Dashboard.vue
+    │   │   ├── Home.vue
+    │   │   ├── Profile.vue
+    │   │   ├── Signin.vue
+    │   │   ├── Tables.vue
+    │   ├── App.vue
+    │   ├── argon-dashboard.js
+    │   └── main.js
+    ├── .browserslistrc
+    ├── .eslintrc.js
+    ├── .gitignore
+    ├── babel.config.js
+    ├── CHANGELOG.md
+    ├── package.json
+    └── README.md
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
 
-### Compiles and minifies for production
-```
-npm run build
-```
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
