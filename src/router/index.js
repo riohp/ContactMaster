@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import store from "../store/index.js";
-import Dashboard from "../views/Dashboard.vue";
 import Tables from "../views/Tables.vue";
 import Signin from "../views/Signin.vue";
 import AgendizedTables from "../views/AgendizedTables.vue";
@@ -11,12 +10,6 @@ const routes = [
     path: "/",
     name: "/",
     redirect: "/signin",
-  },
-  {
-    path: "/dashboard-default",
-    name: "Dashboard",
-    component: Dashboard,
-    meta: { requiresAuth: true }
   },
   {
     path: "/tables",
@@ -56,7 +49,7 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !isAuthenticated) {
     next('/signin');
   } else if (to.path === '/signin' && isAuthenticated) {
-    next('/dashboard-default');
+    next('/agendizedtables');
   } else {
     next();
   }

@@ -66,7 +66,7 @@ export function useAgendizedTables() {
       timer = setTimeout(() => {
         currentPage.value = 1; // Reset to first page on new search
         fetchReferrals();
-      }, 300); 
+      }, 800); 
     };
   })();
 
