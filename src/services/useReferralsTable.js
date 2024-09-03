@@ -35,38 +35,49 @@ export function useReferralsTable() {
 
   const fetchReferrals = async () => {
     loading.value = true;
-    let result;
-    
-    if (searchTerm.value) {
-      result = await api.searchReferrals(searchTerm.value, currentPage.value, pageSize.value);
-    } else {
-      result = await api.getReferrals(currentPage.value, pageSize.value);
-    }
-    
-    if (result.success) {
-      referrals.value = result.data;
-      totalCount.value = result.totalCount;
-      console.log('Datos recibidos del servidor:', result.data); // Para depuración
+    try {
+      let result;
+      if (searchTerm.value) {
+        result = await api.searchReferrals(searchTerm.value, currentPage.value, pageSize.value);
+      } else {
+        result = await api.getReferrals(currentPage.value, pageSize.value);
+      }
+
+      if (result.success) {
+        console.log('Datos recibidos del servidor:', result.data); // Para depuración
         referrals.value = result.data.map(referral => ({
           ...referral,
           formattedDateTime: formatDateTime(referral.callDate)
         }));
         totalCount.value = result.totalCount;
-      if (result.message) {
-        noReferralsMessage.value = result.message;
+        
+        if (result.message) {
+          noReferralsMessage.value = result.message;
+        }
+      } else {
+        throw new Error(result.error || 'Error al obtener los referidos');
       }
-    } else {
+    } catch (error) {
+      console.error('Error fetching referrals:', error);
+      let errorMessage = 'Error al cargar los referidos. ';
+      if (error.message === 'Error de conexión') {
+        errorMessage += 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.';
+      } else {
+        errorMessage += error.message || 'Por favor, inténtelo más tarde.';
+      }
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: result.error === "Error de conexión" 
-          ? 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.'
-          : 'Error al cargar los referidos. Por favor, inténtelo más tarde.',
+        text: errorMessage,
       });
+      referrals.value = [];
+      totalCount.value = 0;
+    } finally {
+      loading.value = false;
     }
-    
-    loading.value = false;
   };
+
+
 
   const changePage = (page) => {
     if (page >= 1 && page <= totalPages.value) {
@@ -115,8 +126,9 @@ export function useReferralsTable() {
     return () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        currentPage.value = 1; 
-      }, 300); // Debounce for 300ms
+        currentPage.value = 1;
+        fetchReferrals(); 
+      }, 800); 
     };
   })();
 

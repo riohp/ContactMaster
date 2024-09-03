@@ -103,8 +103,10 @@ import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 import api from '@/services/api.js';
 
-const minDate = computed(() => new Date().toISOString().split("T")[0]);
-
+const minDate = computed(() => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+});
 const referral = ref({
   name: '',
   phoneNumber: '',
@@ -149,6 +151,8 @@ const validateCallDate = () => {
   touchField('callDate');
   const selectedDate = new Date(referral.value.callDate);
   const today = new Date();
+  selectedDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
   isCallDateValid.value = selectedDate >= today;
 };
 
@@ -179,9 +183,9 @@ const validateAndSubmit = async () => {
   validateCallDate();
   console.log("fecha", referral.value.callDate, referral.value.callTime);
   if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value) {
-
-    console.log("aca", referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value);
-    const combinedDateTime = new Date(`${referral.value.callDate}T${referral.value.callTime}Z`);      
+    const combinedDateTime = new Date(`${referral.value.callDate}T${referral.value.callTime}Z`);
+    console.log("Fecha y hora combinada (UTC):", combinedDateTime.toISOString());
+    
     const referralData = {
       ...referral.value,
       callDate: combinedDateTime.toISOString(),
