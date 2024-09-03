@@ -11,41 +11,43 @@
           </div>
         </div>
         <form v-else @submit.prevent="validateAndSubmit" novalidate>
-        <div :class="['form-group', validationClass('name')]">
-          <label for="name">Nombre</label>
-          <input
-            type="text"
-            class="form-control"
-            id="name"
-            v-model="referral.name"
-            @blur="touchField('name')"
-            :class="{'is-valid': referral.name && touchedFields.name, 'is-invalid': !referral.name && touchedFields.name}"
-            required
-          />
-          <div class="invalid-feedback">Por favor, ingrese un nombre.</div>
-        </div>
-
-        <div :class="['form-group', validationClass('phoneNumber')]">
-          <label for="phoneNumber">Teléfono</label>
-          <input
-            type="tel"
-            class="form-control"
-            id="phoneNumber"
-            v-model="referral.phoneNumber"
-            @input="validatePhoneNumber"
-            @blur="touchField('phoneNumber')"
-            :class="{'is-valid': referral.phoneNumber && touchedFields.phoneNumber, 'is-invalid': !referral.phoneNumber && touchedFields.phoneNumber}"
-            required
-            pattern="[0-9]{10}"
-            maxlength="10"
-          />
-          <div class="invalid-feedback">
-            Por favor, ingrese un número de teléfono válido.
+          <!-- Campos existentes -->
+          <div :class="['form-group', validationClass('name')]">
+            <label for="name">Nombre</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              v-model="referral.name"
+              @blur="touchField('name')"
+              :class="{'is-valid': referral.name && touchedFields.name, 'is-invalid': !referral.name && touchedFields.name}"
+              required
+            />
+            <div class="invalid-feedback">Por favor, ingrese un nombre.</div>
           </div>
-        </div>
 
-        <div :class="['form-group', validationClass('callDate')]">
-          <label for="callDate">Fecha de la llamada</label>
+          <div :class="['form-group', validationClass('phoneNumber')]">
+            <label for="phoneNumber">Teléfono</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phoneNumber"
+              v-model="referral.phoneNumber"
+              @input="validatePhoneNumber"
+              @blur="touchField('phoneNumber')"
+              :class="{'is-valid': referral.phoneNumber && touchedFields.phoneNumber, 'is-invalid': !referral.phoneNumber && touchedFields.phoneNumber}"
+              required
+              pattern="[0-9]{10}"
+              maxlength="10"
+            />
+            <div class="invalid-feedback">
+              Por favor, ingrese un número de teléfono válido.
+            </div>
+          </div>
+
+          <!-- Campos modificados para fecha y hora -->
+          <div :class="['form-group', validationClass('callDate')]">
+            <label for="callDate">Fecha de la llamada</label>
             <input
               type="date"
               class="form-control"
@@ -56,51 +58,68 @@
               :class="{'is-valid': isCallDateValid && touchedFields.callDate, 'is-invalid': !isCallDateValid && touchedFields.callDate}"
               required
             />
-          <div class="invalid-feedback">
-            Por favor, ingrese una fecha válida que no sea anterior a hoy.
+            <div class="invalid-feedback">
+              Por favor, ingrese una fecha válida que no sea anterior a hoy.
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="notes">Notas</label>
-          <textarea
-            class="form-control"
-            id="notes"
-            v-model="referral.notes"
-            @blur="touchField('notes')"
-          ></textarea>
-        </div>
+          <div :class="['form-group', validationClass('callTime')]">
+            <label for="callTime">Hora de la llamada</label>
+            <input
+              type="time"
+              class="form-control"
+              id="callTime"
+              v-model="referral.callTime"
+              @blur="touchField('callTime')"
+              :class="{'is-valid': referral.callTime && touchedFields.callTime, 'is-invalid': !referral.callTime && touchedFields.callTime}"
+              required
+            />
+            <div class="invalid-feedback">
+              Por favor, ingrese una hora válida.
+            </div>
+          </div>
 
-        <div class="text-center">
-          <button type="submit" class="btn btn-primary" :disabled="loading">Guardar cambios</button>
-        </div>
-      </form>
+          <div class="form-group">
+            <label for="notes">Notas</label>
+            <textarea
+              class="form-control"
+              id="notes"
+              v-model="referral.notes"
+              @blur="touchField('notes')"
+            ></textarea>
+          </div>
 
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary" :disabled="loading">Guardar cambios</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 import api from '@/services/api.js';
 
-const minDate = new Date().toISOString().split("T")[0];
+const minDate = computed(() => new Date().toISOString().split("T")[0]);
 
 const referral = ref({
   name: '',
   phoneNumber: '',
   userId: '', 
   callDate: '',
+  callTime: '',
   notes: ''
 });
 
 const touchedFields = ref({
   name: false,
   phoneNumber: false,
-  userid: false,
+  userId: false,
   callDate: false,
+  callTime: false,
   notes: false
 });
 
@@ -130,7 +149,6 @@ const validateCallDate = () => {
   touchField('callDate');
   const selectedDate = new Date(referral.value.callDate);
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
   isCallDateValid.value = selectedDate >= today;
 };
 
@@ -143,13 +161,15 @@ const resetForm = () => {
     name: '',
     phoneNumber: '',
     callDate: '',
+    callTime: '',
     notes: ''
   };
   touchedFields.value = {
     name: false,
     phoneNumber: false,
-    userid: false,
+    userId: false,
     callDate: false,
+    callTime: false,
     notes: false
   };
   isCallDateValid.value = true;
@@ -157,15 +177,27 @@ const resetForm = () => {
 
 const validateAndSubmit = async () => {
   validateCallDate();
-  if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && isCallDateValid.value) {
-    referral.value.callDate = referral.value.callDate.split('T')[0];
+  console.log("fecha", referral.value.callDate, referral.value.callTime);
+  if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value) {
+
+    console.log("aca", referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value);
+    const combinedDateTime = new Date(`${referral.value.callDate}T${referral.value.callTime}Z`);      
+    const referralData = {
+      ...referral.value,
+      callDate: combinedDateTime.toISOString(),
+      phoneNumber: parseInt(referral.value.phoneNumber, 10)
+    };
+
+    delete referralData.callTime;  // Eliminar el campo callTime ya que no es necesario en la API
 
     loading.value = true;
     try {
-      const result = await api.createReferral(referral.value);
+      const result = await api.createReferral(referralData);
+      console.log("creado", result);
       loading.value = false;
 
       if (result.success) {
+        console.log("creado", result.success);
         Swal.fire({
           icon: 'success',
           title: 'Éxito',

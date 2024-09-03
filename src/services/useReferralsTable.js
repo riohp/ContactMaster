@@ -46,6 +46,12 @@ export function useReferralsTable() {
     if (result.success) {
       referrals.value = result.data;
       totalCount.value = result.totalCount;
+      console.log('Datos recibidos del servidor:', result.data); // Para depuración
+        referrals.value = result.data.map(referral => ({
+          ...referral,
+          formattedDateTime: formatDateTime(referral.callDate)
+        }));
+        totalCount.value = result.totalCount;
       if (result.message) {
         noReferralsMessage.value = result.message;
       }
@@ -73,18 +79,43 @@ export function useReferralsTable() {
     return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) {
+      console.log('Fecha y hora no disponibles:', dateTimeString);
+      return 'Fecha y hora no disponibles';
+    }
+    
+    try {
+      const dateObj = new Date(dateTimeString);
+      
+      if (isNaN(dateObj.getTime())) {
+        console.log('Fecha y hora inválidas:', dateTimeString);
+        return 'Fecha y hora inválidas';
+      }
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: 'numeric', 
+        minute: 'numeric',
+        hour12: true
+      };
+      
+      return dateObj.toLocaleString('es-ES', options);
+    } catch (error) {
+      console.error('Error al formatear la fecha y hora:', error);
+      return 'Error en fecha y hora';
+    }
   };
+
 
   const debounceSearch = (() => {
     let timer;
     return () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        currentPage.value = 1; // Reset to first page on new search
-        fetchReferrals();
+        currentPage.value = 1; 
       }, 300); // Debounce for 300ms
     };
   })();
@@ -106,7 +137,7 @@ export function useReferralsTable() {
     fetchReferrals,
     changePage,
     truncateNotes,
-    formatDate,
+    formatDateTime,
     debounceSearch,
     getStatusBadgeClass
   };

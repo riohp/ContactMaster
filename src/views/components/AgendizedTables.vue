@@ -48,8 +48,10 @@
                 <span class="text-secondary">{{ referral.phoneNumber }}</span>
               </td>
               <td class="text-xs">
-                <span class="text-secondary">{{ formatDate(referral.callDate) }}</span>
-              </td>
+              <span class="text-secondary">
+                {{ formatDateTime(referral.callDate) }}
+              </span>
+            </td>
               <td class="text-xs">
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
@@ -107,7 +109,7 @@ const {
   changePage,
   filteredReferrals,
   truncateNotes,
-  formatDate,
+  formatDateTime,
   editReferral,
   closeEditModal,
   onReferralUpdated,

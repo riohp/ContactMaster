@@ -22,7 +22,11 @@ export function useAgendizedTables() {
       }
 
       if (result.success) {
-        referrals.value = result.data;
+        console.log('Datos recibidos del servidor:', result.data); // Para depuración
+        referrals.value = result.data.map(referral => ({
+          ...referral,
+          formattedDateTime: formatDateTime(referral.callDate)
+        }));
         totalCount.value = result.totalCount;
         
         if (filteredReferrals.value.length === 0) {
@@ -74,10 +78,36 @@ export function useAgendizedTables() {
     return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) {
+      console.log('Fecha y hora no disponibles:', dateTimeString);
+      return 'Fecha y hora no disponibles';
+    }
+    
+    try {
+      const dateObj = new Date(dateTimeString);
+      
+      if (isNaN(dateObj.getTime())) {
+        console.log('Fecha y hora inválidas:', dateTimeString);
+        return 'Fecha y hora inválidas';
+      }
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: 'numeric', 
+        minute: 'numeric',
+        hour12: true
+      };
+      
+      return dateObj.toLocaleString('es-ES', options);
+    } catch (error) {
+      console.error('Error al formatear la fecha y hora:', error);
+      return 'Error en fecha y hora';
+    }
   };
+
 
   const editReferral = (referralId) => {
     if (referralId) {
@@ -125,7 +155,7 @@ export function useAgendizedTables() {
     changePage,
     filteredReferrals,
     truncateNotes,
-    formatDate,
+    formatDateTime,
     editReferral,
     closeEditModal,
     onReferralUpdated,
