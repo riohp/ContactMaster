@@ -2,6 +2,8 @@
 1. npm install
 2. npm install axios
 3. npm install sweetalert2
+4. npm install js-cookie
+5. npm install jwt-decode
 
 ## last to run the project
 nom run serve

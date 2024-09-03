@@ -28,7 +28,7 @@ export default {
       try {
         const response = await axios.post(
           `${api.defaults.baseURL}login?username=${encodeURIComponent(credentials.username)}&password=${encodeURIComponent(credentials.password)}`,
-          '', // Cuerpo vacío, ya que los parámetros van en la URL
+          '', 
           {
             headers: {
               'accept': '*/*',
