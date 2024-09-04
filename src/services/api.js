@@ -60,15 +60,19 @@ export default {
     // Función de logout
     async logout() {
       try {
-        localStorage.removeItem('token');
-        return {
-          success: true
-        };
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${api.defaults.baseURL}logout?token=${token}`);
+    
+        if (response.data.success) {
+          // Remove the token from localStorage
+          localStorage.removeItem('token');
+          return { success: true };
+        } else {
+          return { success: false, error: 'Error logging out' };
+        }
       } catch (error) {
-        return {
-          success: false,
-          error: 'Error al cerrar sesión'
-        };
+        console.error('Error logging out:', error);
+        return { success: false, error: 'Error logging out' };
       }
     },
     async refreshToken() {
