@@ -119,7 +119,7 @@ const handleLogin = async () => {
         token: response.data.token,
         user: response.data.user
       });
-      router.push('/dashboard-default');
+      router.push('/agendizedtables');
     } else {
       errorMessage.value = response.error || 'Error de inicio de sesión. Por favor, intente de nuevo.';
     }

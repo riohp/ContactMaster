@@ -1,5 +1,10 @@
 import { createStore } from "vuex";
 import api from '@/services/api.js';
+import Cookies from 'js-cookie';
+import jwtDecode from 'jwt-decode';
+
+
+const TOKEN_COOKIE_NAME = 'token_cookie_name';
 export default createStore({
   state: {
     hideConfigButton: false,
@@ -17,7 +22,7 @@ export default createStore({
     showFooter: true,
     showMain: true,
     layout: "default",
-    // Nuevos estados para la autenticación
+    // estados para la autenticación
     isAuthenticated: false,
     token: null,
     user: null
@@ -25,33 +30,34 @@ export default createStore({
   mutations: {
     toggleSidebarColor(state, payload) {
       state.sidebarType = payload;
-    },
-    // Nuevas mutaciones para la autenticación
+    },  
     setAuth(state, { token, user }) {
       state.isAuthenticated = true;
       state.token = token;
       state.user = user;
+      Cookies.set(TOKEN_COOKIE_NAME, token, { expires: 1/3 }); // 8 hours of token
     },
+    
     clearAuth(state) {
-      state.isAuthenticated = false;
-      state.token = null;
-      state.user = null;
+      state.isAuthenticated = false;  
+      state.token = null;             
+      state.user = null;              
+      Cookies.remove(TOKEN_COOKIE_NAME);
     }
   },
   actions: {
     toggleSidebarColor({ commit }, payload) {
       commit("toggleSidebarColor", payload);
     },
-    // Nuevas acciones para la autenticación
-    async login({ commit }, credentials) {
+    async login({ commit, dispatch }, credentials) {
       try {
-
         const response = await api.login(credentials);
         if (response.success) {
           commit('setAuth', {
             token: response.data.token,
             user: response.data.user
           });
+          dispatch('setupTokenExpiration', response.data.token);
           return { success: true };
         } else {
           return { success: false, error: response.error };
@@ -63,12 +69,48 @@ export default createStore({
     },
     logout({ commit }) {
       commit('clearAuth');
-      // Eliminar el token del almacenamiento local
-      localStorage.removeItem('token');
+    },
+    initAuth({ commit, dispatch }) {
+      const token = Cookies.get(TOKEN_COOKIE_NAME);
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const now = Date.now();
+          if (decodedToken.exp * 1000 > now) {
+            const user = {
+              id: decodedToken.sub,
+              name: decodedToken.name,
+              email: decodedToken.email,
+            };
+            commit('setAuth', { token, user });
+            dispatch('setupTokenExpiration', token);
+          } else {
+            console.log('Token ha expirado');
+            commit('clearAuth');
+          }
+        } catch (error) {
+          commit('clearAuth');
+        }
+      } else {
+        commit('clearAuth');
+      }
+    },
+    setupTokenExpiration({ dispatch }, token) {
+      const decodedToken = jwtDecode(token);
+      const expirationTime = decodedToken.exp * 1000; 
+      const now = Date.now();
+      const timeUntilExpiration = expirationTime - now;
+
+      if (timeUntilExpiration > 0) {
+        setTimeout(() => {
+          dispatch('logout');
+        }, timeUntilExpiration);
+      } else {
+        dispatch('logout');
+      }
     }
   },
   getters: {
-    // Nuevos getters para la autenticación
     isAuthenticated: state => state.isAuthenticated,
     currentUser: state => state.user
   },

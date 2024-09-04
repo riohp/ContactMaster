@@ -23,16 +23,16 @@ const obtenerRuta = () => {
     <ul class="navbar-nav">
       <li class="nav-item">
         <sidenav-item
-          to="/dashboard-default"
-          :class="obtenerRuta() === 'dashboard-default' ? 'active' : ''"
-          navText="Control de Agendamiento"
+          to="/agendizedtables"
+          :class="obtenerRuta() === 'agendizedtables' ? 'active' : ''"
+          navText="Tabla Agendados"
         >
           <template v-slot:icon>
-            <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
+            <i class="ni ni-calendar-grid-58 text-info text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
-
+      
       <li class="nav-item">
         <sidenav-item
           to="/tables"
@@ -45,17 +45,6 @@ const obtenerRuta = () => {
         </sidenav-item>
       </li>
 
-      <li class="nav-item">
-        <sidenav-item
-          to="/agendizedtables"
-          :class="obtenerRuta() === 'agendizedtables' ? 'active' : ''"
-          navText="Tabla Agendados"
-        >
-          <template v-slot:icon>
-            <i class="ni ni-calendar-grid-58 text-info text-sm opacity-10"></i>
-          </template>
-        </sidenav-item>
-      </li>
 
       <li class="nav-item">
         <sidenav-item
