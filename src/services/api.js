@@ -50,7 +50,6 @@ export default {
           };
         }
       } catch (error) {
-        console.error('Error en login:', error);
         return {
           success: false,
           error: error.response?.data?.message || 'Error al iniciar sesión'
@@ -66,15 +65,12 @@ export default {
           success: true
         };
       } catch (error) {
-        console.error('Error en logout:', error);
         return {
           success: false,
           error: 'Error al cerrar sesión'
         };
       }
     },
-  
-    // Función para refrescar el token si es necesario
     async refreshToken() {
       try {
         const response = await api.post('/refresh-token');
@@ -91,14 +87,12 @@ export default {
           };
         }
       } catch (error) {
-        console.error('Error al refrescar el token:', error);
         return {
           success: false,
           error: 'Error al refrescar el token'
         };
       }
     },
-
   async getReferrals(page = 1, pageSize = 10) {
     try {
       const response = await api.get('api/Referral/Referidos', {
@@ -141,7 +135,6 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en getReferral:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
@@ -174,14 +167,12 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error completo:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
           error: error.response.data.messageError
         };
       }else if (error.response) {
-        console.error('Respuesta del servidor:', error.response.data);
         return { 
           success: false, 
           error: error.response.data.Message,
@@ -200,7 +191,6 @@ export default {
       }
     }
   },
-
   async createReferral(createDto) {
     try {
       const response = await api.post('api/Referral/CrearReferido', createDto);
@@ -217,7 +207,6 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en createReferral:', error);
       if (error.response) {
         return { 
           success: false, 
@@ -237,7 +226,6 @@ export default {
       }
     }
   },
-
   async searchReferrals(searchTerm, page = 1, pageSize = 10) {
     try {
       const response = await api.get('api/Referral/BuscarReferidos', {
@@ -259,11 +247,10 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en searchReferrals:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
-          error: error.response.data.message || "No se encontraron referidos que coincidan con la búsqueda."
+          error: error.response.data.message || "No se encontraron referidos que coincidan con la busqueda."
         };
       } else if (error.message === 'Network Error' || !error.response) {
         return { success: false, error: "Error de conexión" };

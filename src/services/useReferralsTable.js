@@ -44,7 +44,6 @@ export function useReferralsTable() {
       }
 
       if (result.success) {
-        console.log('Datos recibidos del servidor:', result.data); // Para depuración
         referrals.value = result.data.map(referral => ({
           ...referral,
           formattedDateTime: formatDateTime(referral.callDate)
@@ -52,24 +51,19 @@ export function useReferralsTable() {
         totalCount.value = result.totalCount;
         
         if (result.message) {
-          noReferralsMessage.value = result.message;
+          noReferralsMessage.value = 'No se encontraron referidos';
         }
       } else {
         throw new Error(result.error || 'Error al obtener los referidos');
       }
     } catch (error) {
-      console.error('Error fetching referrals:', error);
-      let errorMessage = 'Error al cargar los referidos. ';
       if (error.message === 'Error de conexión') {
-        errorMessage += 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.';
-      } else {
-        errorMessage += error.message || 'Por favor, inténtelo más tarde.';
-      }
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: errorMessage,
-      });
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.',
+        });
+      } 
       referrals.value = [];
       totalCount.value = 0;
     } finally {
@@ -92,7 +86,6 @@ export function useReferralsTable() {
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) {
-      console.log('Fecha y hora no disponibles:', dateTimeString);
       return 'Fecha y hora no disponibles';
     }
     
@@ -100,7 +93,6 @@ export function useReferralsTable() {
       const dateObj = new Date(dateTimeString);
       
       if (isNaN(dateObj.getTime())) {
-        console.log('Fecha y hora inválidas:', dateTimeString);
         return 'Fecha y hora inválidas';
       }
       
@@ -115,7 +107,6 @@ export function useReferralsTable() {
       
       return dateObj.toLocaleString('es-ES', options);
     } catch (error) {
-      console.error('Error al formatear la fecha y hora:', error);
       return 'Error en fecha y hora';
     }
   };

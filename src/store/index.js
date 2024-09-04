@@ -3,10 +3,8 @@ import api from '@/services/api.js';
 import Cookies from 'js-cookie';
 import jwtDecode from 'jwt-decode';
 
-console.log('jwtDecode:', jwtDecode);
 
 const TOKEN_COOKIE_NAME = 'token_cookie_name';
-console.log('Token guardado en la cookie:', Cookies.get(TOKEN_COOKIE_NAME));
 export default createStore({
   state: {
     hideConfigButton: false,
@@ -24,7 +22,7 @@ export default createStore({
     showFooter: true,
     showMain: true,
     layout: "default",
-    // Nuevos estados para la autenticación
+    // estados para la autenticación
     isAuthenticated: false,
     token: null,
     user: null
@@ -38,7 +36,6 @@ export default createStore({
       state.token = token;
       state.user = user;
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: 1/3 }); // 8 hours of token
-      console.log('Token guardado en la cookie:', Cookies.get(TOKEN_COOKIE_NAME));
     },
     
     clearAuth(state) {
@@ -46,14 +43,12 @@ export default createStore({
       state.token = null;             
       state.user = null;              
       Cookies.remove(TOKEN_COOKIE_NAME);
-      console.log('Cookie eliminada:', !Cookies.get(TOKEN_COOKIE_NAME)); 
     }
   },
   actions: {
     toggleSidebarColor({ commit }, payload) {
       commit("toggleSidebarColor", payload);
     },
-    // Nuevas acciones para la autenticación
     async login({ commit, dispatch }, credentials) {
       try {
         const response = await api.login(credentials);
@@ -94,7 +89,6 @@ export default createStore({
             commit('clearAuth');
           }
         } catch (error) {
-          console.error('Error al decodificar el token:', error);
           commit('clearAuth');
         }
       } else {
@@ -117,7 +111,6 @@ export default createStore({
     }
   },
   getters: {
-    // Nuevos getters para la autenticación
     isAuthenticated: state => state.isAuthenticated,
     currentUser: state => state.user
   },
