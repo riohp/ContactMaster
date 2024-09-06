@@ -35,7 +35,6 @@
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Teléfono</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notas</th>
               <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Acciones</th>
             </tr>
           </thead>
@@ -56,11 +55,8 @@
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
               <td class="text-xs">
-                <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
-              </td>
-              <td class="text-xs">
-                <button class="btn px-4 btn-primary" @click="editReferral(referral.referralId)">
-                  <i class="fas fa-edit"></i>
+                <button class="btn px-4 btn-success" @click="editReferral(referral.referralId)">
+                  <i class="fas fa-exclamation-circle"></i>
                 </button>
               </td>
             </tr>
@@ -108,7 +104,6 @@ const {
   pageSize,
   changePage,
   filteredReferrals,
-  truncateNotes,
   formatDateTime,
   editReferral,
   closeEditModal,

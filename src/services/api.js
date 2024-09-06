@@ -64,7 +64,6 @@ export default {
         const response = await axios.post(`${api.defaults.baseURL}logout?token=${token}`);
     
         if (response.data.success) {
-          // Remove the token from localStorage
           localStorage.removeItem('token');
           return { success: true };
         } else {
@@ -75,28 +74,7 @@ export default {
         return { success: false, error: 'Error logging out' };
       }
     },
-    async refreshToken() {
-      try {
-        const response = await api.post('/refresh-token');
-        if (response.data && response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          return {
-            success: true,
-            data: response.data
-          };
-        } else {
-          return {
-            success: false,
-            error: 'Nuevo token no recibido'
-          };
-        }
-      } catch (error) {
-        return {
-          success: false,
-          error: 'Error al refrescar el token'
-        };
-      }
-    },
+    
   async getReferrals(page = 1, pageSize = 10) {
     try {
       const response = await api.get('api/Referral/Referidos', {

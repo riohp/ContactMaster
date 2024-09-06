@@ -5,7 +5,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Editar Referido</h5>
+            <h5 class="modal-title">Información del Referido</h5>
             <button type="button" class="btn btn-danger close" @click="close" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -17,36 +17,45 @@
               </div>
             </div>
             <form v-else @submit.prevent="validateAndSubmit" novalidate>
-              <div :class="['form-group', validationClass(referral.name)]">
-                <label for="name">Nombre</label>
-                <input type="text" class="form-control" id="name" v-model="referral.name" required>
-                <div class="invalid-feedback">
-                  Por favor, ingrese un nombre.
+              <div v-for="field in fields" :key="field.id" class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label :for="field.id">{{ field.label }}</label>
+                  <button type="button" class="btn btn-sm btn-success" @click="toggleEdit(field.id)">
+                    <i v-if="!isEditing[field.id]" class="fas fa-edit"></i>
+                    <i v-else class="fas fa-check"></i>
+                  </button>
                 </div>
-              </div>
-              <div :class="['form-group', validationClass(referral.phoneNumber)]">
-                <label for="phoneNumber">Teléfono</label>
-                <input type="tel" class="form-control" id="phoneNumber" v-model="referral.phoneNumber" @input="validatePhoneNumber" required pattern="[0-9]{10}" maxlength="10">
-                <div class="invalid-feedback">
-                  Por favor, ingrese un número de teléfono válido.
-                </div>
-              </div>
-              <div :class="['form-group', validationClass(referral.status)]">
-                <label for="status">Estado</label>
-                <select class="form-control" id="status" v-model="referral.status" required> 
-                    <option value="" disabled>Seleccione...</option>
-                    <option value="agendado">Agendado</option>
-                    <option value="en proceso">En Proceso</option>
-                    <option value="exitoso">Exitoso</option>
-                    <option value="no exitoso">No Exitoso</option>
+                <input v-if="field.type !== 'select' && field.type !== 'textarea'"
+                       :type="field.type"
+                       :class="['form-control', validationClass(referral[field.id])]"
+                       :id="field.id"
+                       v-model="referral[field.id]"
+                       :disabled="!isEditing[field.id]"
+                       :required="field.required"
+                       :pattern="field.pattern"
+                       :maxlength="field.maxlength"
+                       @input="field.id === 'phoneNumber' ? validatePhoneNumber() : null">
+                <select v-else-if="field.type === 'select'"
+                        :class="['form-control', validationClass(referral[field.id])]"
+                        :id="field.id"
+                        v-model="referral[field.id]"
+                        :disabled="!isEditing[field.id]"
+                        :required="field.required">
+                  <option value="" disabled>Seleccione...</option>
+                  <option v-for="option in field.options" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
                 </select>
+                <textarea v-else
+                          :class="['form-control', validationClass(referral[field.id])]"
+                          :id="field.id"
+                          v-model="referral[field.id]"
+                          :disabled="!isEditing[field.id]"
+                          :required="field.required">
+                </textarea>
                 <div class="invalid-feedback">
-                  Por favor, seleccione un estado.
+                  {{ field.invalidFeedback }}
                 </div>
-              </div>
-              <div class="form-group">
-                <label for="notes">Notas</label>
-                <textarea class="form-control" id="notes" v-model="referral.notes"></textarea>
               </div>
             </form>
           </div>
@@ -59,8 +68,9 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import useReferralEditModal from '@/services/useReferralEditModal';
 
 const props = defineProps({
@@ -80,9 +90,41 @@ const {
   fetchReferral
 } = useReferralEditModal(props, emit);
 
+const isEditing = ref({
+  name: false,
+  phoneNumber: false,
+  status: false,
+  notes: false
+});
+
+const fields = [
+  { id: 'name', label: 'Nombre', type: 'text', required: true, invalidFeedback: 'Por favor, ingrese un nombre.' },
+  { id: 'phoneNumber', label: 'Teléfono', type: 'tel', required: true, pattern: '[0-9]{10}', maxlength: '10', invalidFeedback: 'Por favor, ingrese un número de teléfono válido.' },
+  { id: 'status', label: 'Estado', type: 'select', required: true, options: [
+    { value: 'agendado', label: 'Agendado' },
+    { value: 'en proceso', label: 'En Proceso' },
+    { value: 'exitoso', label: 'Exitoso' },
+    { value: 'no exitoso', label: 'No Exitoso' }
+  ], invalidFeedback: 'Por favor, seleccione un estado.' },
+  { id: 'notes', label: 'Notas', type: 'textarea', required: false }
+];
+
+const toggleEdit = (fieldId) => {
+  if (isEditing.value[fieldId]) {
+    // Si estamos guardando, podríamos realizar alguna validación adicional aquí
+    isEditing.value[fieldId] = false;
+  } else {
+    isEditing.value[fieldId] = true;
+  }
+};
+
 watch(() => props.isVisible, (newValue) => {
   if (newValue) {
     fetchReferral();
+    // Resetear el estado de edición cuando se abre el modal
+    Object.keys(isEditing.value).forEach(key => {
+      isEditing.value[key] = false;
+    });
   }
 });
 
@@ -94,17 +136,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.is-invalid .form-control {
-  border-color: #dc3545;
-}
-.is-valid .form-control {
-  border-color: #28a745;
-}
-.invalid-feedback {
-  display: none;
-}
-
-.is-invalid .invalid-feedback {
-  display: block;
-}
+  .is-invalid .form-control {
+    border-color: #dc3545;
+  }
+  .is-valid .form-control {
+    border-color: #28a745;
+  }
+  .invalid-feedback {
+    display: none;
+  }
+  .is-invalid .invalid-feedback {
+    display: block;
+  }
 </style>
