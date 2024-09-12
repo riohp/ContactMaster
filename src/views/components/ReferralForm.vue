@@ -11,7 +11,6 @@
           </div>
         </div>
         <form v-else @submit.prevent="validateAndSubmit" novalidate>
-          <!-- Campos existentes -->
           <div :class="['form-group', validationClass('name')]">
             <label for="name">Nombre</label>
             <input
@@ -45,7 +44,6 @@
             </div>
           </div>
 
-          <!-- Campos modificados para fecha y hora -->
           <div :class="['form-group', validationClass('callDate')]">
             <label for="callDate">Fecha de la llamada</label>
             <input
@@ -59,7 +57,7 @@
               required
             />
             <div class="invalid-feedback">
-              Por favor, ingrese una fecha válida que no sea anterior a hoy.
+              Por favor, ingrese una fecha válida (hoy o una fecha futura).
             </div>
           </div>
 
@@ -107,10 +105,10 @@ const minDate = computed(() => {
   const today = new Date();
   return today.toISOString().split('T')[0];
 });
+
 const referral = ref({
   name: '',
   phoneNumber: '',
-  userId: '', 
   callDate: '',
   callTime: '',
   notes: ''
@@ -119,7 +117,6 @@ const referral = ref({
 const touchedFields = ref({
   name: false,
   phoneNumber: false,
-  userId: false,
   callDate: false,
   callTime: false,
   notes: false
@@ -149,11 +146,19 @@ const validationClass = (field) => {
 
 const validateCallDate = () => {
   touchField('callDate');
-  const selectedDate = new Date(referral.value.callDate);
+  if (!referral.value.callDate) {
+    isCallDateValid.value = false;
+    return;
+  }
+  const selectedDate = new Date(referral.value.callDate + 'T00:00:00Z');
   const today = new Date();
-  selectedDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
+  today.setUTCHours(0, 0, 0, 0);
+  
   isCallDateValid.value = selectedDate >= today;
+  
+  console.log("Fecha seleccionada (UTC):", selectedDate.toUTCString());
+  console.log("Fecha actual (UTC):", today.toUTCString());
+  console.log("Es válida:", isCallDateValid.value);
 };
 
 const validatePhoneNumber = () => {
@@ -171,7 +176,6 @@ const resetForm = () => {
   touchedFields.value = {
     name: false,
     phoneNumber: false,
-    userId: false,
     callDate: false,
     callTime: false,
     notes: false
@@ -181,10 +185,14 @@ const resetForm = () => {
 
 const validateAndSubmit = async () => {
   validateCallDate();
-  console.log("fecha", referral.value.callDate, referral.value.callTime);
+  console.log("Iniciando validación y envío:", JSON.parse(JSON.stringify(referral.value)));
+
   if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value) {
-    const combinedDateTime = new Date(`${referral.value.callDate}T${referral.value.callTime}Z`);
-    console.log("Fecha y hora combinada (UTC):", combinedDateTime.toISOString());
+    const [year, month, day] = referral.value.callDate.split('-');
+    const [hours, minutes] = referral.value.callTime.split(':');
+    const combinedDateTime = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+    
+    console.log("Fecha y hora combinada (UTC):", combinedDateTime.toUTCString());
     
     const referralData = {
       ...referral.value,
@@ -192,50 +200,50 @@ const validateAndSubmit = async () => {
       phoneNumber: parseInt(referral.value.phoneNumber, 10)
     };
 
-    delete referralData.callTime;  // Eliminar el campo callTime ya que no es necesario en la API
+    delete referralData.callTime; 
 
     loading.value = true;
     try {
+      console.log("Enviando datos al servidor:", referralData);
       const result = await api.createReferral(referralData);
-      console.log("creado", result);
-      loading.value = false;
+      console.log("Respuesta completa del servidor:", JSON.stringify(result, null, 2));
 
       if (result.success) {
-        console.log("creado", result.success);
         Swal.fire({
           icon: 'success',
           title: 'Éxito',
-          text: result.message,
+          text: result.message || 'Referido creado exitosamente.',
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
           resetForm();
         });
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: result.error,
-        });
+        throw new Error(result.message || result.error || 'Error desconocido al crear el referido');
       }
     } catch (error) {
-      loading.value = false;
+      console.error("Error detallado:", error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo crear el referido. Por favor, intenta de nuevo.',
+        text: error.message || 'No se pudo crear el referido. Por favor, intenta de nuevo.',
       });
+    } finally {
+      loading.value = false;
     }
   } else {
+    let errorMessage = 'Por favor, complete todos los campos obligatorios correctamente.';
+    if (!isCallDateValid.value) {
+      errorMessage += ' La fecha de llamada debe ser igual o posterior a la fecha actual.';
+    }
     Swal.fire({
       icon: 'error',
-      title: 'Error',
-      text: 'Por favor, complete todos los campos obligatorios correctamente.',
+      title: 'Error de validación',
+      text: errorMessage,
     });
   }
 };
 </script>
-
 <style scoped>
 .is-invalid .form-control {
   border-color: #dc3545;
@@ -250,4 +258,4 @@ const validateAndSubmit = async () => {
 .is-invalid .invalid-feedback {
   display: block;
 }
-</style>
+</style>  

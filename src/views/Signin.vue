@@ -14,11 +14,11 @@
                   <form role="form" @submit.prevent="handleLogin">
                     <div class="mb-3">
                       <argon-input
-                        v-model="username"
-                        id="username"
+                        v-model="userName"
+                        id="userName"
                         type="text"
                         placeholder="Usuario"
-                        name="username"
+                        name="userName"
                         size="lg"
                       />
                     </div>
@@ -86,7 +86,7 @@ import api from '@/services/api.js';
 
 const store = useStore();
 const router = useRouter();
-const username = ref('');
+const userName = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
@@ -113,7 +113,7 @@ const handleLogin = async () => {
   errorMessage.value = '';
   isLoading.value = true;
   try {
-    const response = await api.login({ username: username.value, password: password.value });
+    const response = await api.login({ userName: userName.value, password: password.value });
     if (response.success) {
       store.commit('setAuth', {
         token: response.data.token,

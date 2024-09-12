@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 const api = axios.create({
   baseURL: 'https://localhost:7275/',
   headers: {
@@ -27,12 +26,17 @@ export default {
     async login(credentials) {
       try {
         const response = await axios.post(
-          `${api.defaults.baseURL}login?username=${encodeURIComponent(credentials.username)}&password=${encodeURIComponent(credentials.password)}`,
-          '', 
+          `${api.defaults.baseURL}api/Account/login`,
+          {
+            accounts: {
+              userName: credentials.userName,
+              password: credentials.password
+            }
+          },
           {
             headers: {
-              'accept': '*/*',
-              'Content-Type': 'application/x-www-form-urlencoded',
+              'Accept': '*/*',
+              'Content-Type': 'application/json',
             },
           }
         );
@@ -45,13 +49,13 @@ export default {
           };
         } else {
           return {
-            success: false,
+            accounts: false,
             error: 'Token no recibido'
           };
         }
       } catch (error) {
         return {
-          success: false,
+          accounts: false,
           error: error.response?.data?.message || 'Error al iniciar sesión'
         };
       }
@@ -61,7 +65,7 @@ export default {
     async logout() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.post(`${api.defaults.baseURL}logout?token=${token}`);
+        const response = await axios.post(`${api.defaults.baseURL}api/Account/logout?token=${token}`);
     
         if (response.data.success) {
           localStorage.removeItem('token');
