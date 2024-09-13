@@ -1,16 +1,87 @@
 import axios from 'axios';
-
 const api = axios.create({
-  baseURL: 'https://localhost:7275/api',
+  baseURL: 'https://localhost:7275/',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// Interceptor para añadir el token a las solicitudes
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 export default {
+    // Función de login
+    async login(credentials) {
+      try {
+        const response = await axios.post(
+          `${api.defaults.baseURL}api/Account/login`,
+          {
+            accounts: {
+              userName: credentials.userName,
+              password: credentials.password
+            }
+          },
+          {
+            headers: {
+              'Accept': '*/*',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        
+        if (response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          return {
+            success: true,
+            data: response.data
+          };
+        } else {
+          return {
+            accounts: false,
+            error: 'Token no recibido'
+          };
+        }
+      } catch (error) {
+        return {
+          accounts: false,
+          error: error.response?.data?.message || 'Error al iniciar sesión'
+        };
+      }
+    },
+  
+    // Función de logout
+    async logout() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(`${api.defaults.baseURL}api/Account/logout?token=${token}`);
+    
+        if (response.data.success) {
+          localStorage.removeItem('token');
+          return { success: true };
+        } else {
+          return { success: false, error: 'Error logging out' };
+        }
+      } catch (error) {
+        console.error('Error logging out:', error);
+        return { success: false, error: 'Error logging out' };
+      }
+    },
+    
   async getReferrals(page = 1, pageSize = 10) {
     try {
-      const response = await api.get('/Referral/Referidos', {
+      const response = await api.get('api/Referral/Referidos', {
         params: { page, pageSize }
       });
       return { 
@@ -37,7 +108,7 @@ export default {
 
   async getReferral(id) {
     try {
-      const response = await api.get(`/Referral/Referido/${id}`);
+      const response = await api.get(`api/Referral/Referido/${id}`);
       if (response.data && response.data.statusCode === 200) {
         return {
           success: true,
@@ -50,7 +121,6 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en getReferral:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
@@ -69,7 +139,7 @@ export default {
 
   async updateReferral(id, updateData) {
     try {
-      const response = await api.put(`/Referral/ActualizarReferido/${id}`, updateData);
+      const response = await api.put(`api/Referral/ActualizarReferido/${id}`, updateData);
       if (response.data && response.data.statusCode === 201) {
         return {
             success: true,
@@ -83,14 +153,12 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error completo:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
           error: error.response.data.messageError
         };
       }else if (error.response) {
-        console.error('Respuesta del servidor:', error.response.data);
         return { 
           success: false, 
           error: error.response.data.Message,
@@ -109,10 +177,9 @@ export default {
       }
     }
   },
-
   async createReferral(createDto) {
     try {
-      const response = await api.post('/Referral/CrearReferido', createDto);
+      const response = await api.post('api/Referral/CrearReferido', createDto);
       if (response.status === 201) {
         return {
           success: true,
@@ -126,7 +193,6 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en createReferral:', error);
       if (error.response) {
         return { 
           success: false, 
@@ -146,10 +212,9 @@ export default {
       }
     }
   },
-
   async searchReferrals(searchTerm, page = 1, pageSize = 10) {
     try {
-      const response = await api.get('/Referral/BuscarReferidos', {
+      const response = await api.get('api/Referral/BuscarReferidos', {
         params: { searchTerm, page, pageSize }
       });
       if (response.data && response.data.statusCode === 200) {
@@ -168,11 +233,10 @@ export default {
         };
       }
     } catch (error) {
-      console.error('Error en searchReferrals:', error);
       if (error.response && error.response.status === 404) {
         return { 
           success: false, 
-          error: error.response.data.message || "No se encontraron referidos que coincidan con la búsqueda."
+          error: error.response.data.message || "No se encontraron referidos que coincidan con la busqueda."
         };
       } else if (error.message === 'Network Error' || !error.response) {
         return { success: false, error: "Error de conexión" };

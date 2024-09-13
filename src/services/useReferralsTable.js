@@ -35,32 +35,43 @@ export function useReferralsTable() {
 
   const fetchReferrals = async () => {
     loading.value = true;
-    let result;
-    
-    if (searchTerm.value) {
-      result = await api.searchReferrals(searchTerm.value, currentPage.value, pageSize.value);
-    } else {
-      result = await api.getReferrals(currentPage.value, pageSize.value);
-    }
-    
-    if (result.success) {
-      referrals.value = result.data;
-      totalCount.value = result.totalCount;
-      if (result.message) {
-        noReferralsMessage.value = result.message;
+    try {
+      let result;
+      if (searchTerm.value) {
+        result = await api.searchReferrals(searchTerm.value, currentPage.value, pageSize.value);
+      } else {
+        result = await api.getReferrals(currentPage.value, pageSize.value);
       }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: result.error === "Error de conexión" 
-          ? 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.'
-          : 'Error al cargar los referidos. Por favor, inténtelo más tarde.',
-      });
+
+      if (result.success) {
+        referrals.value = result.data.map(referral => ({
+          ...referral,
+          formattedDateTime: formatDateTime(referral.callDate)
+        }));
+        totalCount.value = result.totalCount;
+        
+        if (result.message) {
+          noReferralsMessage.value = 'No se encontraron referidos';
+        }
+      } else {
+        throw new Error(result.error || 'Error al obtener los referidos');
+      }
+    } catch (error) {
+      if (error.message === 'Error de conexión') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo establecer conexión con el servidor. Por favor, verifique su conexión a internet y vuelva a intentarlo.',
+        });
+      } 
+      referrals.value = [];
+      totalCount.value = 0;
+    } finally {
+      loading.value = false;
     }
-    
-    loading.value = false;
   };
+
+
 
   const changePage = (page) => {
     if (page >= 1 && page <= totalPages.value) {
@@ -73,19 +84,42 @@ export function useReferralsTable() {
     return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) {
+      return 'Fecha y hora no disponibles';
+    }
+    
+    try {
+      const dateObj = new Date(dateTimeString);
+      
+      if (isNaN(dateObj.getTime())) {
+        return 'Fecha y hora inválidas';
+      }
+      
+      const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: 'numeric', 
+        minute: 'numeric',
+        hour12: true
+      };
+      
+      return dateObj.toLocaleString('es-ES', options);
+    } catch (error) {
+      return 'Error en fecha y hora';
+    }
   };
+
 
   const debounceSearch = (() => {
     let timer;
     return () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        currentPage.value = 1; // Reset to first page on new search
-        fetchReferrals();
-      }, 300); // Debounce for 300ms
+        currentPage.value = 1;
+        fetchReferrals(); 
+      }, 800); 
     };
   })();
 
@@ -106,7 +140,7 @@ export function useReferralsTable() {
     fetchReferrals,
     changePage,
     truncateNotes,
-    formatDate,
+    formatDateTime,
     debounceSearch,
     getStatusBadgeClass
   };

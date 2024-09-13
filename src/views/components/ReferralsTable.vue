@@ -46,7 +46,9 @@
                 <span class="text-secondary">{{ referral.phoneNumber }}</span>
               </td>
               <td class="text-xs">
-                <span class="text-secondary">{{ formatDate(referral.callDate) }}</span>
+                <span class="text-secondary">
+                  {{ formatDateTime(referral.callDate) }}
+                </span>              
               </td>
               <td class="text-xs">
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
@@ -100,7 +102,7 @@ const {
   displayedPages,
   changePage,
   truncateNotes,
-  formatDate,
+  formatDateTime,
   debounceSearch,
   getStatusBadgeClass
 } = useReferralsTable();

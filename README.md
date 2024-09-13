@@ -2,6 +2,8 @@
 1. npm install
 2. npm install axios
 3. npm install sweetalert2
+4. npm install js-cookie
+5. npm install jwt-decode
 
 ## last to run the project
 nom run serve
@@ -28,11 +30,10 @@ vue-agenda-ab
     │   ├── examples
     │   │   ├── Cards
     │   │   ├── Charts
-    │   │   ├── Navbars
     │   │   ├── PageLayout
     │   │   ├── Sidenav
     │   │   ├── Breadcrumbs.vue
-    │   │   ├── Configurator.vue
+    |   |   ├── Globe.vue
     │   │   └── Footer.vue
     │   ├── router
     |   ├── services
@@ -40,15 +41,13 @@ vue-agenda-ab
     │   ├── store
     │   ├── views
     │   │   ├── components
-    │   │   ├── Billing.vue
+    |   |   ├── AgendizendTables.vue
+    |   |   ├── CreateReferral.vue
     │   │   ├── Dashboard.vue
     │   │   ├── Home.vue
     │   │   ├── Profile.vue
-    │   │   ├── Rtl.vue
     │   │   ├── Signin.vue
-    │   │   ├── Signup.vue
     │   │   ├── Tables.vue
-    │   │   └── VirtualReality.vue
     │   ├── App.vue
     │   ├── argon-dashboard.js
     │   └── main.js
@@ -57,8 +56,6 @@ vue-agenda-ab
     ├── .gitignore
     ├── babel.config.js
     ├── CHANGELOG.md
-    ├── ISSUE_TEMPLATE.md
-    ├── LICENSE
     ├── package.json
     └── README.md
 ```
