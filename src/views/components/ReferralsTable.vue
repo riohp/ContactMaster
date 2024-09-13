@@ -1,7 +1,7 @@
 <template>
   <div class="card">
-    <div class="card-header">
-      <h6 class="container">Tabla De Referidos</h6>
+    <div class="card-header text-center py-3">
+      <h6 class="container fs-3 fw-bold text-primary-emphasis">Tabla General</h6>
     </div>
     <div class="container d-flex justify-content-end">
       <div class="input-group w-25">
@@ -26,42 +26,50 @@
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
-      <div v-else class="table-responsive p-0">
-        <table class="table align-items-center text-center mb-0">
+      <div v-else class="table-responsive">
+        <table class="table align-items-center text-center table-striped table-hover">
           <thead>
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Teléfono</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notas</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Nombre</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Teléfono</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Fecha</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Estado</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Notas</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.name }}</span>
+              <td class="text-sm">
+                <span class="text-dark">{{ referral.name }}</span>
               </td>
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.phoneNumber }}</span>
+              <td class="text-sm">
+                <span 
+                  class="text-dark phone-number" 
+                  @mouseover="showFullNumber"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
               </td>
-              <td class="text-xs">
-                <span class="text-secondary">
+              <td class="text-sm">
+                <span class="text-dark">
                   {{ formatDateTime(referral.callDate) }}
                 </span>              
               </td>
-              <td class="text-xs">
+              <td class="text-sm">
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
-              <td class="text-xs">
-                <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
+              <td class="text-sm">
+                <span class="text-dark">{{ truncateNotes(referral.notes) }}</span>
               </td>  
             </tr>
           </tbody>
         </table>
         <!-- Paginación -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
-          <div class="text-sm text-secondary mb-2 mb-md-0">
+          <div class="text-sm text-dark fw-normal mb-2 mb-md-0">
             Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
           </div>
           <nav aria-label="Page navigation">
@@ -104,22 +112,27 @@ const {
   truncateNotes,
   formatDateTime,
   debounceSearch,
-  getStatusBadgeClass
+  getStatusBadgeClass,
+  maskedPhoneNumber,
+  showFullNumber,
+  hideFullNumber,
+  copyNumber
 } = useReferralsTable();
 </script>
 
 <style scoped>
-.pagination {
-  gap: 5px;
-}
-.page-link {
-  padding: 0.25rem 0.5rem;
-}
+  
 .badge {
-  font-size: 0.75em;
+  font-size: 0.95em;
   padding: 0.35em 0.65em;
 }
 .d-none {
   display: none;
+}
+.table {
+  font-size: 0.80em;
+}
+.phone-number {
+  cursor: pointer;
 }
 </style>
