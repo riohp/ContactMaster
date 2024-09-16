@@ -62,8 +62,18 @@
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
               <td class="text-sm">
-                <span class="text-dark">{{ truncateNotes(referral.notes) }}</span>
-              </td>  
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-secondary"
+                  data-bs-toggle="popover" 
+                  :data-bs-content="referral.notes ? referral.notes : 'No hay información que mostrar'"
+                  data-bs-placement="left"
+                  ref="popoverBtn"
+                  @mouseover="initializePopover"
+                >
+                  Ver notas
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -97,7 +107,8 @@
 
 <script setup>
 import { useReferralsTable } from '@/services/useReferralsTable';
-
+import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
+import { Popover } from 'bootstrap';
 const {
   referrals,
   loading,
@@ -109,15 +120,20 @@ const {
   totalPages,
   displayedPages,
   changePage,
-  truncateNotes,
   formatDateTime,
   debounceSearch,
-  getStatusBadgeClass,
-  maskedPhoneNumber,
-  showFullNumber,
-  hideFullNumber,
-  copyNumber
+  getStatusBadgeClass
 } = useReferralsTable();
+
+const initializePopover = (event) => {
+  const popoverTrigger = event.currentTarget;
+  const popover = new Popover(popoverTrigger, {
+    trigger: 'hover',
+    placement: 'left'
+  });
+  popover.show();
+};
+
 </script>
 
 <style scoped>

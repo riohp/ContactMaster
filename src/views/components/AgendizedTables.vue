@@ -44,7 +44,15 @@
                 <span class="text-dark">{{ referral.name }}</span>
               </td>
               <td class="text-sm">
-                <span class="text-dark">{{ referral.phoneNumber }}</span>
+                <span 
+                  class="text-dark phone-number" 
+                  @mouseover="showFullNumber"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
               </td>
               <td class="text-sm">
               <span class="text-dark">
@@ -90,6 +98,7 @@
 import { onMounted, watch } from 'vue';
 import ReferralEditModal from './ReferralEditModal.vue';
 import PaginatorAgendized from './PaginatorAgendized.vue';
+import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
 import { useAgendizedTables } from '@/services/useAgendizedTables.js';
 
 const {

@@ -80,9 +80,6 @@ export function useReferralsTable() {
     }
   };
 
-  const truncateNotes = (notes) => {
-    return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
-  };
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) {
@@ -123,52 +120,6 @@ export function useReferralsTable() {
     };
   })();
 
-  const maskedPhoneNumber = (number) => {
-    if (typeof number !== 'string') {
-      number = String(number);
-    }
-    if (number.length <= 6) {
-      return 'x'.repeat(number.length);
-    }
-    return 'x'.repeat(number.length - 4) + number.slice(-4);
-  };
-
-  const showFullNumber = (event) => {
-    event.target.textContent = event.target.dataset.fullNumber;
-  };
-
-  const hideFullNumber = (event) => {
-    event.target.textContent = maskedPhoneNumber(event.target.dataset.fullNumber);
-  };
-
-  const copyNumber = (event) => {
-    const fullNumber = event.target.dataset.fullNumber;
-    navigator.clipboard.writeText(fullNumber).then(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Copiado',
-        text: 'El número de teléfono ha sido copiado al portapapeles',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-    }).catch(() => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo copiar el número de teléfono',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-      });
-    });
-  };
-
-
   onMounted(() => {
     fetchReferrals();
   });
@@ -185,13 +136,8 @@ export function useReferralsTable() {
     displayedPages,
     fetchReferrals,
     changePage,
-    truncateNotes,
     formatDateTime,
     debounceSearch,
-    getStatusBadgeClass,
-    maskedPhoneNumber,
-    showFullNumber,
-    hideFullNumber,
-    copyNumber
+    getStatusBadgeClass
   };
 }
