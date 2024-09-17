@@ -1,17 +1,28 @@
 <template>
   <div class="card">
-    <div class="card-header ">
-      <h6 class="container">Tabla De Agendados y En Proceso</h6>
+    <div class="card-header text-center">
+      <h6 class="container fs-3 fw-bold text-primary-emphasis">Tabla De Agendados y En Proceso</h6>
     </div>
-    <div class="container d-flex justify-content-end">
-      <div class="input-group w-25">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar referido..."
-          v-model="searchTerm"
-          @input="debounceSearch"  
-        >
+        <div class="container d-flex justify-content-end">
+      <div class="row">
+        <div class="input-group w-50">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar referido..."
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+          
+        </div>
+        <div class="input-group w-50">
+          <input
+            type="date"
+            class="form-control"
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+        </div>
       </div>
     </div>
     <div class="card-body">
@@ -27,35 +38,43 @@
         </div>
       </div>
 
-      <div v-else class="table-responsive p-0">
-        <table class="table align-items-center text-center mb-0">
+      <div v-else class="table-responsive">
+        <table class="table align-items-center text-center table table-striped  table-hover">
           <thead>
             <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Teléfono</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Acciones</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Nombre</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Teléfono</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Fecha</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Estado</th>
+              <th class="text-uppercase text-dark text-sm fw-bold">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="referral in filteredReferrals" :key="referral.referralId" :data-full-id="referral.referralId">
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.name }}</span>
+              <td class="text-sm">
+                <span class="text-dark">{{ referral.name }}</span>
               </td>
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.phoneNumber }}</span>
+              <td class="text-sm">
+                <span 
+                  class="text-dark phone-number" 
+                  @mouseover="showFullNumber"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
               </td>
-              <td class="text-xs">
-              <span class="text-secondary">
+              <td class="text-sm">
+              <span class="text-dark">
                 {{ formatDateTime(referral.callDate) }}
               </span>
             </td>
-              <td class="text-xs">
+              <td class="text-sm">
                 <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
               </td>
-              <td class="text-xs">
-                <button class="btn px-4 btn-success" @click="editReferral(referral.referralId)">
+              <td class="text-sm pt-2">
+                <button class="btn px-3  btn-success badgebutton" @click="editReferral(referral.referralId)">
                   <i class="fas fa-exclamation-circle"></i>
                 </button>
               </td>
@@ -64,7 +83,7 @@
         </table>
      
         <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
-          <div class="text-sm text-secondary mb-2 mb-md-0">
+          <div class="text-sm text-dark fw-normal mb-2 mb-md-0">
             Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
           </div>
           <PaginatorAgendized
@@ -90,6 +109,7 @@
 import { onMounted, watch } from 'vue';
 import ReferralEditModal from './ReferralEditModal.vue';
 import PaginatorAgendized from './PaginatorAgendized.vue';
+import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
 import { useAgendizedTables } from '@/services/useAgendizedTables.js';
 
 const {
@@ -124,7 +144,11 @@ watch(currentPage, () => {
 
 <style scoped>
 .badge {
-  font-size: 0.75em;
+  font-size: 0.90em;
+  padding: 0.35em 0.65em;
+}
+
+.badgebutton{
   padding: 0.35em 0.65em;
 }
 </style>

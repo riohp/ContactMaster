@@ -11,6 +11,7 @@ export function useReferralsTable() {
   const pageSize = ref(10);
   const totalCount = ref(0);
   const searchTerm = ref('');
+  const searchDate = ref('');
 
   const totalPages = computed(() => Math.ceil(totalCount.value / pageSize.value));
 
@@ -22,7 +23,6 @@ export function useReferralsTable() {
       range.push(i);
     }
       
-    // Always include first and last page
     if (range[0] > 1) {
       range.unshift(1);
     }
@@ -71,17 +71,11 @@ export function useReferralsTable() {
     }
   };
 
-
-
   const changePage = (page) => {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
       fetchReferrals();
     }
-  };
-
-  const truncateNotes = (notes) => {
-    return notes.length > 20 ? notes.substring(0, 20) + '...' : notes;
   };
 
   const formatDateTime = (dateTimeString) => {
@@ -111,7 +105,6 @@ export function useReferralsTable() {
     }
   };
 
-
   const debounceSearch = (() => {
     let timer;
     return () => {
@@ -135,11 +128,11 @@ export function useReferralsTable() {
     pageSize,
     totalCount,
     searchTerm,
+    searchDate,
     totalPages,
     displayedPages,
     fetchReferrals,
     changePage,
-    truncateNotes,
     formatDateTime,
     debounceSearch,
     getStatusBadgeClass
