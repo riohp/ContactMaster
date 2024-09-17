@@ -4,16 +4,27 @@
       <h6 class="container fs-3 fw-bold text-primary-emphasis">Tabla General</h6>
     </div>
     <div class="container d-flex justify-content-end">
-      <div class="input-group w-25">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar referido..."
-          v-model="searchTerm"
-          @input="debounceSearch"
-        >
+      <div class="row">
+        <div class="input-group w-50">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar referido..."
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+          
+        </div>
+        <div class="input-group w-50">
+          <input
+            type="date"
+            class="form-control"
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+        </div>
       </div>
-    </div>
+    </div> 
     <div class="card-body px-0 pt-0 pb-2">
       <div v-if="!loading && referrals.length === 0" class="text-center py-5">
         <i class="fas fa-users fa-3x text-secondary mb-3"></i>
@@ -64,7 +75,7 @@
               <td class="text-sm">
                 <button 
                   type="button" 
-                  class="btn btn-sm btn-secondary"
+                  class="btn btn-sm btn-dark"
                   data-bs-toggle="popover" 
                   :data-bs-content="referral.notes ? referral.notes : 'No hay información que mostrar'"
                   data-bs-placement="left"
@@ -108,7 +119,8 @@
 <script setup>
 import { useReferralsTable } from '@/services/useReferralsTable';
 import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
-import { Popover } from 'bootstrap';
+import { usePopover } from '@/assets/js/usePopover';
+
 const {
   referrals,
   loading,
@@ -125,30 +137,25 @@ const {
   getStatusBadgeClass
 } = useReferralsTable();
 
-const initializePopover = (event) => {
-  const popoverTrigger = event.currentTarget;
-  const popover = new Popover(popoverTrigger, {
-    trigger: 'hover',
-    placement: 'left'
-  });
-  popover.show();
-};
+const {
+  initializePopover
+} = usePopover();
 
 </script>
 
 <style scoped>
   
-.badge {
-  font-size: 0.95em;
-  padding: 0.35em 0.65em;
-}
-.d-none {
-  display: none;
-}
-.table {
-  font-size: 0.80em;
-}
-.phone-number {
-  cursor: pointer;
-}
+  .badge {
+    font-size: 0.95em;
+    padding: 0.35em 0.65em;
+  }
+  .d-none {
+    display: none;
+  }
+  .table {
+    font-size: 0.80em;
+  }
+  .phone-number {
+    cursor: pointer;
+  }
 </style>

@@ -3,15 +3,26 @@
     <div class="card-header text-center">
       <h6 class="container fs-3 fw-bold text-primary-emphasis">Tabla De Agendados y En Proceso</h6>
     </div>
-    <div class="container d-flex justify-content-end">
-      <div class="input-group w-25">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar referido..."
-          v-model="searchTerm"
-          @input="debounceSearch"  
-        >
+        <div class="container d-flex justify-content-end">
+      <div class="row">
+        <div class="input-group w-50">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar referido..."
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+          
+        </div>
+        <div class="input-group w-50">
+          <input
+            type="date"
+            class="form-control"
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+        </div>
       </div>
     </div>
     <div class="card-body">
