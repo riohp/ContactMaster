@@ -9,9 +9,9 @@ export const maskedPhoneNumber = (number) => {
   }
 };
 
-//export const showFullNumber = (event) => {
-  //event.target.textContent = event.target.dataset.fullNumber;
-//};
+export const showFullNumber = (event) => {
+  event.target.textContent = event.target.dataset.fullNumber;
+};
 
 export const hideFullNumber = (event) => {
   event.target.textContent = maskedPhoneNumber(event.target.dataset.fullNumber);

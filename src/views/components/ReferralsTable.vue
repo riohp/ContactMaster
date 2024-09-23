@@ -13,7 +13,6 @@
             v-model="searchTerm"
             @input="debounceSearch"
           >
-          
         </div>
         <div class="input-group w-50">
           <input
@@ -37,80 +36,84 @@
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
-      <div v-else class="table-responsive">
-        <table class="table align-items-center text-center table-striped table-hover">
-          <thead>
-            <tr>
-              <th class="text-uppercase text-dark text-sm fw-bold">Nombre</th>
-              <th class="text-uppercase text-dark text-sm fw-bold">Teléfono</th>
-              <th class="text-uppercase text-dark text-sm fw-bold">Fecha</th>
-              <th class="text-uppercase text-dark text-sm fw-bold">Estado</th>
-              <th class="text-uppercase text-dark text-sm fw-bold">Notas</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
-              <td class="text-sm">
-                <span class="text-dark">{{ referral.name }}</span>
-              </td>
-              <td class="text-sm">
-                <span 
-                  class="text-dark phone-number" 
-                  @mouseover="showFullNumber"
-                  @mouseout="hideFullNumber"
-                  @contextmenu.prevent="copyNumber"
-                  :data-full-number="referral.phoneNumber"
-                >
-                  {{ maskedPhoneNumber(referral.phoneNumber) }}
-                </span>
-              </td>
-              <td class="text-sm">
-                <span class="text-dark">
-                  {{ formatDateTime(referral.callDate) }}
-                </span>              
-              </td>
-              <td class="text-sm">
-                <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
-              </td>
-              <td class="text-sm">
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-dark"
-                  data-bs-toggle="popover" 
-                  :data-bs-content="referral.notes ? referral.notes : 'No hay información que mostrar'"
-                  data-bs-placement="left"
-                  ref="popoverBtn"
-                  @mouseover="initializePopover"
-                >
-                  Ver notas
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- Paginación -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
-          <div class="text-sm text-dark fw-normal mb-2 mb-md-0">
-            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
-          </div>
-          <nav aria-label="Page navigation">
-            <ul class="pagination pagination-sm flex-wrap justify-content-center mb-0">
-              <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <li class="page-item" v-for="page in displayedPages" :key="page" :class="{ active: currentPage === page }">
-                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-              </li>
-              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+      <div v-else class="table-container">
+        <div class="table-responsive">
+          <table class="table align-items-center text-center table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-dark text-sm fw-bold">Nombre</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Teléfono</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Fecha</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Estado</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Notas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="referral in referrals" :key="referral.referralId" :data-full-id="referral.referralId">
+                <td class="text-sm">
+                  <span class="text-dark">{{ referral.name }}</span>
+                </td>
+                <td class="text-sm">
+                  <span 
+                    class="text-dark phone-number" 
+                    @mouseover="showFullNumber"
+                    @mouseout="hideFullNumber"
+                    @contextmenu.prevent="copyNumber"
+                    :data-full-number="referral.phoneNumber"
+                  >
+                    {{ maskedPhoneNumber(referral.phoneNumber) }}
+                  </span>
+                </td>
+                <td class="text-sm">
+                  <span class="text-dark">
+                    {{ formatDateTime(referral.callDate) }}
+                  </span>              
+                </td>
+                <td class="text-sm">
+                  <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
+                </td>
+                <td class="text-sm">
+                  <button 
+                    type="button" 
+                    class="btn btn-sm btn-dark"
+                    data-bs-toggle="popover" 
+                    :data-bs-content="referral.notes ? referral.notes : 'No hay información que mostrar'"
+                    data-bs-placement="left"
+                    ref="popoverBtn"
+                    @mouseover="initializePopover"
+                  >
+                    Ver notas
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+    </div>
+    <!-- Paginación -->
+    <div class="card-footer">
+      <div class="d-flex flex-wrap justify-content-between align-items-center px-3">
+        <div class="text-sm text-dark fw-normal mb-2 mb-md-0">
+          Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
+        </div>
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm flex-wrap justify-content-center mb-0">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item" v-for="page in displayedPages" :key="page" :class="{ active: currentPage === page }">
+              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -144,18 +147,68 @@ const {
 </script>
 
 <style scoped>
-  
-  .badge {
-    font-size: 0.95em;
-    padding: 0.35em 0.65em;
-  }
-  .d-none {
-    display: none;
-  }
-  .table {
-    font-size: 0.80em;
-  }
-  .phone-number {
-    cursor: pointer;
-  }
+.card-body {
+  padding: 0;
+}
+
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table-responsive {
+  margin-bottom: 0;
+}
+
+.table {
+  margin-bottom: 0;
+  font-size: 0.80em;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.badge {
+  font-size: 0.95em;
+  padding: 0.35em 0.65em;
+}
+
+.phone-number {
+  cursor: pointer;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.5);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(85, 85, 85, 0.8);
+}
+
+.table-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(136, 136, 136, 0.5) transparent;
+}
+
+.table-container::-webkit-scrollbar {
+  display: none;
+}
+
+
+.table-container:hover::-webkit-scrollbar {
+  display: block;
+}
 </style>
