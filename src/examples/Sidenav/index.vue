@@ -10,7 +10,9 @@ const isRTL = computed(() => store.state.isRTL);
 const layout = computed(() => store.state.layout);
 const sidebarType = computed(() => store.state.sidebarType);
 const darkMode = computed(() => store.state.darkMode);
+
 </script>
+
 <template>
   <div
     v-show="layout === 'default'"

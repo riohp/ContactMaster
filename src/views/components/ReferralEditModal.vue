@@ -6,10 +6,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Información del Referido</h5>
-            <button type="button" class="btn btn-sm btn-success" @click="toggleEdit">
-              <i v-if="!isEditing" class="fas fa-edit"></i>
-              <i v-else class="fas fa-check"></i>
-            </button>
             <button type="button" class="btn btn-danger close" @click="close" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -30,23 +26,20 @@
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :disabled="!isEditing"
                            :required="field.required">
                     <input v-else-if="field.type !== 'select' && field.type !== 'textarea'"
                            :type="field.type"
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :disabled="!isEditing"
                            :required="field.required"
                            :pattern="field.pattern"
                            :maxlength="field.maxlength"
-                           @input="field.id === 'phoneNumber' ? validatePhoneNumber() : null">
+                           @input="field.id === 'phoneNumber' ? validatePhoneNumber($event) : null">
                     <select v-else-if="field.type === 'select'"
                             :class="['form-control', validationClass(referral[field.id])]"
                             :id="field.id"
                             v-model="referral[field.id]"
-                            :disabled="!isEditing"
                             :required="field.required">
                       <option value="" disabled>Seleccione...</option>
                       <option v-for="option in field.options" :key="option.value" :value="option.value">
@@ -66,20 +59,22 @@
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :disabled="!isEditing"
                            :required="field.required">
-                    <input v-else-if="field.type !== 'select' && field.type !== 'textarea'"
-                           :type="field.type"
+                    <input v-if="field.id === 'phoneNumber'"
+                           type="tel"
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :disabled="!isEditing"
                            :required="field.required"
-                           :pattern="field.pattern"
-                           :maxlength="field.maxlength"
-                           @input="field.id === 'phoneNumber' ? validatePhoneNumber() : null">
+                           maxlength="10"
+                           pattern="\d{10}"
+                           inputmode="numeric"
+                           @input="validatePhoneNumber($event)">
                     <select v-else-if="field.type === 'select'"
-                            :class="['form-control', validationClass(referral[field.id])]">
+                            :class="['form-control', validationClass(referral[field.id])]"
+                            :id="field.id"
+                            v-model="referral[field.id]"
+                            :required="field.required">
                       <option value="" disabled>Seleccione...</option>
                       <option v-for="option in field.options" :key="option.value" :value="option.value">
                         {{ option.label }}
@@ -92,7 +87,6 @@
                 <textarea id="notes"
                           class="form-control"
                           v-model="referral.notes"
-                          :disabled="!isEditing"
                           rows="5">
                 </textarea>
                 <div class="invalid-feedback">
@@ -112,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { onMounted, watch, computed } from 'vue';
 import useReferralEditModal from '@/services/useReferralEditModal';
 
 const props = defineProps({
@@ -132,8 +126,6 @@ const {
   fetchReferral
 } = useReferralEditModal(props, emit);
 
-const isEditing = ref(false);
-
 const fields = [
   { id: 'name', label: 'Nombre', type: 'text', required: true, invalidFeedback: 'Por favor, ingrese un nombre.' },
   { id: 'phoneNumber', label: 'Teléfono', type: 'tel', required: true, pattern: '[0-9]{10}', maxlength: '10', invalidFeedback: 'Por favor, ingrese un número de teléfono válido.' },
@@ -147,14 +139,9 @@ const fields = [
   { id: 'notes', label: 'Notas', type: 'textarea', required: false }
 ];
 
-const toggleEdit = () => {
-  isEditing.value = !isEditing.value;
-};
-
 watch(() => props.isVisible, (newValue) => {
   if (newValue) {
     fetchReferral();
-    isEditing.value = false; // Reset to non-editing mode when the modal opens
   }
 });
 

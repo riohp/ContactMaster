@@ -39,7 +39,11 @@ export default function useReferralEditModal(props, emit) {
   };
 
   const validatePhoneNumber = (event) => {
-    referral.value.phoneNumber = event.target.value.replace(/\D/g, '');
+    if (event && event.target) {
+      const numericValue = event.target.value.replace(/\D/g, '').slice(0, 10);
+      event.target.value = numericValue;
+      referral.value.phoneNumber = numericValue;
+    }
   };
 
   const validateAndSubmit = async () => {
