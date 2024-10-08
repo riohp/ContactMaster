@@ -26,7 +26,8 @@
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :required="field.required">
+                           :required="field.required"
+                           :min="currentDateTime">
                     <input v-else-if="field.type !== 'select' && field.type !== 'textarea'"
                            :type="field.type"
                            :class="['form-control', validationClass(referral[field.id])]"
@@ -47,7 +48,7 @@
                       </option>
                     </select>
                     <div class="invalid-feedback">
-                      {{ field.invalidFeedback }}
+                      {{ field.id === 'callDate' ? 'Por favor, seleccione una fecha y hora futura.' : field.invalidFeedback }}
                     </div>
                   </div>
                 </div>
@@ -59,8 +60,9 @@
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
                            v-model="referral[field.id]"
-                           :required="field.required">
-                    <input v-if="field.id === 'phoneNumber'"
+                           :required="field.required"
+                           :min="currentDateTime">
+                    <input v-else-if="field.id === 'phoneNumber'"
                            type="tel"
                            :class="['form-control', validationClass(referral[field.id])]"
                            :id="field.id"
@@ -80,6 +82,9 @@
                         {{ option.label }}
                       </option>
                     </select>
+                    <div class="invalid-feedback">
+                      {{ field.id === 'callDate' ? 'Por favor, seleccione una fecha y hora futura.' : field.invalidFeedback }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -119,6 +124,7 @@ const emit = defineEmits(['close', 'updated']);
 const {
   referral,
   loading,
+  currentDateTime,
   validationClass,
   validatePhoneNumber,
   validateAndSubmit,
@@ -135,7 +141,7 @@ const fields = [
     { value: 'exitoso', label: 'Exitoso' },
     { value: 'no exitoso', label: 'No Exitoso' }
   ], invalidFeedback: 'Por favor, seleccione un estado.' },
-  { id: 'callDate', label: 'Fecha y Hora de Llamada', type: 'datetime-local', required: true, invalidFeedback: 'Por favor, seleccione una fecha y hora.' },
+  { id: 'callDate', label: 'Fecha y Hora de Llamada', type: 'datetime-local', required: true, invalidFeedback: 'Por favor, seleccione una fecha y hora futura.' },
   { id: 'notes', label: 'Notas', type: 'textarea', required: false }
 ];
 
