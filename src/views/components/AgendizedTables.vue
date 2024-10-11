@@ -56,14 +56,17 @@
                 </td>
                 <td class="text-sm">
                   <span 
-                    class="text-dark phone-number" 
-                    @mouseover="showFullNumber"
-                    @mouseout="hideFullNumber"
-                    @contextmenu.prevent="copyNumber"
-                    :data-full-number="referral.phoneNumber"
-                  >
-                    {{ maskedPhoneNumber(referral.phoneNumber) }}
-                  </span>
+                  class="text-dark phone-number" 
+                  @mouseover="(event) => { showFullNumber(event); initializePopover(event); }"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  data-bs-toggle="popover" 
+                  data-bs-content="Click derecho para copiar número"
+                  data-bs-placement="top"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
                 </td>
                 <td class="text-sm">
                   <span class="text-dark">
@@ -114,6 +117,8 @@ import ReferralEditModal from './ReferralEditModal.vue';
 import PaginatorAgendized from './PaginatorAgendized.vue';
 import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
 import { useAgendizedTables } from '@/services/useAgendizedTables.js';
+import { usePopover } from '@/assets/js/usePopover';
+
 
 const {
   noReferralsMessage,
@@ -135,6 +140,10 @@ const {
   searchTerm,
   debounceSearch  
 } = useAgendizedTables();
+
+const {
+  initializePopover
+} = usePopover();
 
 onMounted(() => {
   fetchReferrals();

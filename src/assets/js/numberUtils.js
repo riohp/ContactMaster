@@ -1,5 +1,4 @@
 import Swal from 'sweetalert2';
-
 export const maskedPhoneNumber = (number) => {
   if (typeof number !== 'string') {
     number = String(number);

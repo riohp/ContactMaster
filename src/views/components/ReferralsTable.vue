@@ -55,14 +55,17 @@
                 </td>
                 <td class="text-sm">
                   <span 
-                    class="text-dark phone-number" 
-                    @mouseover="showFullNumber"
-                    @mouseout="hideFullNumber"
-                    @contextmenu.prevent="copyNumber"
-                    :data-full-number="referral.phoneNumber"
-                  >
-                    {{ maskedPhoneNumber(referral.phoneNumber) }}
-                  </span>
+                  class="text-dark phone-number" 
+                  @mouseover="(event) => { showFullNumber(event); initializePopover(event); }"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  data-bs-toggle="popover" 
+                  data-bs-content="Click derecho para copiar número"
+                  data-bs-placement="left"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
                 </td>
                 <td class="text-sm">
                   <span class="text-dark">
