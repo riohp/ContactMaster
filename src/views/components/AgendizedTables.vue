@@ -1,17 +1,27 @@
 <template>
   <div class="card">
-    <div class="card-header ">
-      <h6 class="container">Tabla De Agendados y En Proceso</h6>
+    <div class="card-header text-center">
+      <h6 class="container fs-3 fw-bold text-primary-emphasis">Tabla De Agendados y En Proceso</h6>
     </div>
     <div class="container d-flex justify-content-end">
-      <div class="input-group w-25">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar referido..."
-          v-model="searchTerm"
-          @input="debounceSearch"  
-        >
+      <div class="row">
+        <div class="input-group w-50">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar referido..."
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+        </div>
+        <div class="input-group w-50">
+          <input
+            type="date"
+            class="form-control"
+            v-model="searchTerm"
+            @input="debounceSearch"
+          >
+        </div>
       </div>
     </div>
     <div class="card-body">
@@ -27,56 +37,67 @@
         </div>
       </div>
 
-      <div v-else class="table-responsive p-0">
-        <table class="table align-items-center text-center mb-0">
-          <thead>
-            <tr>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nombre</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Teléfono</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fecha</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Estado</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notas</th>
-              <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="referral in filteredReferrals" :key="referral.referralId" :data-full-id="referral.referralId">
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.name }}</span>
-              </td>
-              <td class="text-xs">
-                <span class="text-secondary">{{ referral.phoneNumber }}</span>
-              </td>
-              <td class="text-xs">
-              <span class="text-secondary">
-                {{ formatDateTime(referral.callDate) }}
-              </span>
-            </td>
-              <td class="text-xs">
-                <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
-              </td>
-              <td class="text-xs">
-                <span class="text-secondary">{{ truncateNotes(referral.notes) }}</span>
-              </td>
-              <td class="text-xs">
-                <button class="btn px-4 btn-primary" @click="editReferral(referral.referralId)">
-                  <i class="fas fa-edit"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-     
-        <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 px-3">
-          <div class="text-sm text-secondary mb-2 mb-md-0">
-            Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
-          </div>
-          <PaginatorAgendized
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            @change-page="changePage"
-          />
+      <div v-else class="table-container">
+        <div class="table-responsive">
+          <table class="table align-items-center text-center table-striped table-hover">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-dark text-sm fw-bold">Nombre</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Teléfono</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Fecha</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Estado</th>
+                <th class="text-uppercase text-dark text-sm fw-bold">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="referral in filteredReferrals" :key="referral.referralId" :data-full-id="referral.referralId">
+                <td class="text-sm">
+                  <span class="text-dark">{{ referral.name }}</span>
+                </td>
+                <td class="text-sm">
+                  <span 
+                  class="text-dark phone-number" 
+                  @mouseover="(event) => { showFullNumber(event); initializePopover(event); }"
+                  @mouseout="hideFullNumber"
+                  @contextmenu.prevent="copyNumber"
+                  data-bs-toggle="popover" 
+                  data-bs-content="Click derecho para copiar número"
+                  data-bs-placement="top"
+                  :data-full-number="referral.phoneNumber"
+                >
+                  {{ maskedPhoneNumber(referral.phoneNumber) }}
+                </span>
+                </td>
+                <td class="text-sm">
+                  <span class="text-dark">
+                    {{ formatDateTime(referral.callDate) }}
+                  </span>
+                </td>
+                <td class="text-sm">
+                  <span class="badge" :class="getStatusBadgeClass(referral.status)">{{ referral.status }}</span>
+                </td>
+                <td class="text-sm pt-2">
+                  <button class="btn px-3 btn-success badgebutton" @click="editReferral(referral.referralId)">
+                    <i class="fas fa-exclamation-circle"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+    </div>
+    
+    <div class="card-footer">
+      <div class="d-flex flex-wrap justify-content-between align-items-center px-3">
+        <div class="text-sm text-dark fw-normal mb-2 mb-md-0">
+          Mostrando {{ (currentPage - 1) * pageSize + 1 }} - {{ Math.min(currentPage * pageSize, totalCount) }} de {{ totalCount }} resultados
+        </div>
+        <PaginatorAgendized
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @change-page="changePage"
+        />
       </div>
     </div>
   </div>
@@ -94,7 +115,10 @@
 import { onMounted, watch } from 'vue';
 import ReferralEditModal from './ReferralEditModal.vue';
 import PaginatorAgendized from './PaginatorAgendized.vue';
+import { maskedPhoneNumber, showFullNumber, hideFullNumber, copyNumber } from '@/assets/js/numberUtils';
 import { useAgendizedTables } from '@/services/useAgendizedTables.js';
+import { usePopover } from '@/assets/js/usePopover';
+
 
 const {
   noReferralsMessage,
@@ -108,7 +132,6 @@ const {
   pageSize,
   changePage,
   filteredReferrals,
-  truncateNotes,
   formatDateTime,
   editReferral,
   closeEditModal,
@@ -117,6 +140,10 @@ const {
   searchTerm,
   debounceSearch  
 } = useAgendizedTables();
+
+const {
+  initializePopover
+} = usePopover();
 
 onMounted(() => {
   fetchReferrals();
@@ -127,9 +154,68 @@ watch(currentPage, () => {
 });
 </script>
 
+
 <style scoped>
+.card-body {
+  padding: 0;
+}
+
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table-responsive {
+  margin-bottom: 0;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 1;
+}
+
 .badge {
-  font-size: 0.75em;
+  font-size: 0.90em;
   padding: 0.35em 0.65em;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 2px; 
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;  /* Fondo transparente para un aspecto más limpio */
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.5);  /* Color semi-transparente para mayor elegancia */
+  border-radius: 4px;  /* Bordes redondeados para suavizar la apariencia */
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(85, 85, 85, 0.8);  /* Ligeramente más oscuro y opaco al pasar el mouse */
+}
+
+.table-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(136, 136, 136, 0.5) transparent;
+}
+
+.table-container::-webkit-scrollbar {
+  display: none;  
+}
+
+.table-container:hover {
+  scrollbar-width: thin;  /* Para Firefox */
+}
+
+.table-container:hover::-webkit-scrollbar {
+  display: block;  
 }
 </style>

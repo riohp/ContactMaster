@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import api from '@/services/api.js';
 import Swal from 'sweetalert2';
 
@@ -7,10 +7,17 @@ export default function useReferralEditModal(props, emit) {
     name: '',
     phoneNumber: '',
     status: '',
-    notes: ''
+    notes: '',
+    callDate: ''
   });
   const loading = ref(true);
   const formValidated = ref(false);
+
+  const currentDateTime = computed(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  });
 
   const fetchReferral = async () => {
     loading.value = true;
@@ -18,6 +25,10 @@ export default function useReferralEditModal(props, emit) {
       const result = await api.getReferral(props.referralId);
       if (result.success && result.data) {
         referral.value = result.data;
+        // Asegurarse de que la fecha de llamada sea futura si existe
+        if (referral.value.callDate && new Date(referral.value.callDate) < new Date()) {
+          referral.value.callDate = '';
+        }
       } else {
         throw new Error(result.error || 'No se pudo obtener la información del referido');
       }
@@ -39,12 +50,23 @@ export default function useReferralEditModal(props, emit) {
   };
 
   const validatePhoneNumber = (event) => {
-    referral.value.phoneNumber = event.target.value.replace(/\D/g, '');
+    if (event && event.target) {
+      const numericValue = event.target.value.replace(/\D/g, '').slice(0, 10);
+      event.target.value = numericValue;
+      referral.value.phoneNumber = numericValue;
+    }
+  };
+
+  const validateCallDate = () => {
+    if (!referral.value.callDate) return false;
+    const callDate = new Date(referral.value.callDate);
+    const now = new Date();
+    return callDate > now;
   };
 
   const validateAndSubmit = async () => {
     formValidated.value = true;
-    if (referral.value.name && referral.value.phoneNumber && referral.value.status) {
+    if (referral.value.name && referral.value.phoneNumber && referral.value.status && validateCallDate()) {
       loading.value = true;
       try {
         const result = await api.updateReferral(props.referralId, referral.value);
@@ -59,15 +81,21 @@ export default function useReferralEditModal(props, emit) {
         } else {
           throw new Error(result.error || 'Error desconocido al actualizar el referido');
         }
-      } catch (error) {
+      } catch (error) { 
         Swal.fire({
-          icon: 'error',
+          icon: 'warning',
           title: 'Error',
           text: error.message || 'Error al actualizar el referido'
         });
       } finally {
         loading.value = false;
       }
+    } else if (!validateCallDate()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'La fecha de llamada debe ser en el futuro'
+      });
     }
   };
 
@@ -78,6 +106,7 @@ export default function useReferralEditModal(props, emit) {
   return {
     referral,
     loading,
+    currentDateTime,
     validationClass,
     validatePhoneNumber,
     validateAndSubmit,

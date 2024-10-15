@@ -51,16 +51,16 @@ export default createStore({
     },
     async login({ commit, dispatch }, credentials) {
       try {
-        const response = await api.login(credentials);
-        if (response.success) {
+        const accounts = await api.login(credentials);
+        if (accounts.success) {
           commit('setAuth', {
-            token: response.data.token,
-            user: response.data.user
+            token: accounts.data.token,
+            user: accounts.data.user
           });
-          dispatch('setupTokenExpiration', response.data.token);
+          dispatch('setupTokenExpiration', accounts.data.token);
           return { success: true };
         } else {
-          return { success: false, error: response.error };
+          return { success: false, error: accounts.error };
         }
       } catch (error) {
         console.error('Error en acción de login:', error);

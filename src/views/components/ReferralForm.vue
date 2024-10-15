@@ -11,7 +11,6 @@
           </div>
         </div>
         <form v-else @submit.prevent="validateAndSubmit" novalidate>
-          <!-- Campos existentes -->
           <div :class="['form-group', validationClass('name')]">
             <label for="name">Nombre</label>
             <input
@@ -45,7 +44,6 @@
             </div>
           </div>
 
-          <!-- Campos modificados para fecha y hora -->
           <div :class="['form-group', validationClass('callDate')]">
             <label for="callDate">Fecha de la llamada</label>
             <input
@@ -59,7 +57,7 @@
               required
             />
             <div class="invalid-feedback">
-              Por favor, ingrese una fecha válida que no sea anterior a hoy.
+              Por favor, ingrese una fecha válida (hoy o una fecha futura).
             </div>
           </div>
 
@@ -99,141 +97,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import Swal from 'sweetalert2';
-import api from '@/services/api.js';
+import useReferralForm from '@/services/useReferralForm';
 
-const minDate = computed(() => {
-  const today = new Date();
-  return today.toISOString().split('T')[0];
-});
-const referral = ref({
-  name: '',
-  phoneNumber: '',
-  userId: '', 
-  callDate: '',
-  callTime: '',
-  notes: ''
-});
-
-const touchedFields = ref({
-  name: false,
-  phoneNumber: false,
-  userId: false,
-  callDate: false,
-  callTime: false,
-  notes: false
-});
-
-const loading = ref(false);
-const isCallDateValid = ref(true);
-
-const touchField = (field) => {
-  touchedFields.value[field] = true;
-};
-
-const validationClass = (field) => {
-  const value = referral.value[field];
-  const touched = touchedFields.value[field];
-  if (field === 'callDate') {
-    return touched ? (isCallDateValid.value ? 'is-valid' : 'is-invalid') : '';
-  }
-  if (touched && value === '') {
-    return 'is-invalid';
-  } else if (touched && value !== '') {
-    return 'is-valid';
-  } else {
-    return '';
-  }
-};
-
-const validateCallDate = () => {
-  touchField('callDate');
-  const selectedDate = new Date(referral.value.callDate);
-  const today = new Date();
-  selectedDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  isCallDateValid.value = selectedDate >= today;
-};
-
-const validatePhoneNumber = () => {
-  referral.value.phoneNumber = referral.value.phoneNumber.replace(/[^0-9]/g, '');
-};
-
-const resetForm = () => {
-  referral.value = {
-    name: '',
-    phoneNumber: '',
-    callDate: '',
-    callTime: '',
-    notes: ''
-  };
-  touchedFields.value = {
-    name: false,
-    phoneNumber: false,
-    userId: false,
-    callDate: false,
-    callTime: false,
-    notes: false
-  };
-  isCallDateValid.value = true;
-};
-
-const validateAndSubmit = async () => {
-  validateCallDate();
-  console.log("fecha", referral.value.callDate, referral.value.callTime);
-  if (referral.value.name && referral.value.phoneNumber && referral.value.callDate && referral.value.callTime && isCallDateValid.value) {
-    const combinedDateTime = new Date(`${referral.value.callDate}T${referral.value.callTime}Z`);
-    console.log("Fecha y hora combinada (UTC):", combinedDateTime.toISOString());
-    
-    const referralData = {
-      ...referral.value,
-      callDate: combinedDateTime.toISOString(),
-      phoneNumber: parseInt(referral.value.phoneNumber, 10)
-    };
-
-    delete referralData.callTime;  // Eliminar el campo callTime ya que no es necesario en la API
-
-    loading.value = true;
-    try {
-      const result = await api.createReferral(referralData);
-      console.log("creado", result);
-      loading.value = false;
-
-      if (result.success) {
-        console.log("creado", result.success);
-        Swal.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: result.message,
-          timer: 2000,
-          showConfirmButton: false
-        }).then(() => {
-          resetForm();
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: result.error,
-        });
-      }
-    } catch (error) {
-      loading.value = false;
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo crear el referido. Por favor, intenta de nuevo.',
-      });
-    }
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Por favor, complete todos los campos obligatorios correctamente.',
-    });
-  }
-};
+const {
+  minDate,
+  referral,
+  touchedFields,
+  loading,
+  isCallDateValid,
+  touchField,
+  validationClass,
+  validateCallDate,
+  validatePhoneNumber,
+  validateAndSubmit
+} = useReferralForm();
 </script>
 
 <style scoped>
