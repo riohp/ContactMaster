@@ -22,12 +22,12 @@
                   <div v-for="field in evenFields" :key="field.id" class="mb-3">
                     <label :for="field.id">{{ field.label }}</label>
                     <input v-if="field.type === 'datetime-local'"
-                           type="datetime-local"
-                           :class="['form-control', validationClass(referral[field.id])]"
-                           :id="field.id"
-                           v-model="referral[field.id]"
-                           :required="field.required"
-                           :min="currentDateTime">
+                   type="datetime-local"
+                   :class="['form-control', validationClass(referral[field.id])]"
+                   :id="field.id"
+                   v-model="referral[field.id]"
+                   :required="field.required"
+                   :min="currentDateTime">
                     <input v-else-if="field.type !== 'select' && field.type !== 'textarea'"
                            :type="field.type"
                            :class="['form-control', validationClass(referral[field.id])]"
@@ -129,7 +129,8 @@ const {
   validatePhoneNumber,
   validateAndSubmit,
   close,
-  fetchReferral
+  fetchReferral,
+  initializeCallDate
 } = useReferralEditModal(props, emit);
 
 const fields = [
@@ -155,6 +156,7 @@ onMounted(() => {
   if (props.isVisible) {
     fetchReferral();
   }
+  initializeCallDate();
 });
 
 // Computed properties for filtered fields
@@ -175,4 +177,4 @@ const oddFields = computed(() => fields.filter((_, index) => index % 2 !== 0));
 .is-invalid .invalid-feedback {
   display: block;
 }
-</style>
+</style>  

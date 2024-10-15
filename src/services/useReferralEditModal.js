@@ -19,6 +19,12 @@ export default function useReferralEditModal(props, emit) {
     return now.toISOString().slice(0, 16);
   });
 
+  const initializeCallDate = () => {
+    if (!referral.value.callDate) {
+      referral.value.callDate = currentDateTime.value;
+    }
+  };
+
   const fetchReferral = async () => {
     loading.value = true;
     try {
@@ -27,7 +33,7 @@ export default function useReferralEditModal(props, emit) {
         referral.value = result.data;
         // Asegurarse de que la fecha de llamada sea futura si existe
         if (referral.value.callDate && new Date(referral.value.callDate) < new Date()) {
-          referral.value.callDate = '';
+          initializeCallDate();
         }
       } else {
         throw new Error(result.error || 'No se pudo obtener la información del referido');
@@ -111,6 +117,7 @@ export default function useReferralEditModal(props, emit) {
     validatePhoneNumber,
     validateAndSubmit,
     close,
-    fetchReferral
+    fetchReferral,
+    initializeCallDate
   };
 }
